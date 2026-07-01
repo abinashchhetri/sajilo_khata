@@ -17,8 +17,7 @@ export const QUERY_KEYS = {
   },
 
   TRANSACTIONS: {
-    ALL: (filters?: Record<string, unknown>) =>
-      ["all-transactions", filters] as const,
+    ALL: (filters?: object) => ["all-transactions", filters] as const,
     SINGLE: (id: string) => ["transaction", id] as const,
   },
 
@@ -36,20 +35,17 @@ export const QUERY_KEYS = {
   INVESTMENT_TRANSACTIONS: {
     // Omitting params yields a 2-element key so invalidateQueries matches
     // every cached page for the investment, not just the unfiltered one.
-    ALL: (investmentId: string, params?: Record<string, unknown>) =>
+    ALL: (investmentId: string, params?: object) =>
       params === undefined
         ? (["investment-transactions", investmentId] as const)
         : (["investment-transactions", investmentId, params] as const),
   },
 
   ANALYTICS: {
-    DASHBOARD: (range?: Record<string, unknown>) =>
-      ["analytics-dashboard", range] as const,
-    CATEGORIES: (range?: Record<string, unknown>) =>
-      ["analytics-categories", range] as const,
+    DASHBOARD: (range?: object) => ["analytics-dashboard", range] as const,
+    CATEGORIES: (range?: object) => ["analytics-categories", range] as const,
     ACCOUNTS_VIEW: "analytics-accounts",
-    TOP_ITEMS: (range?: Record<string, unknown>) =>
-      ["analytics-top-items", range] as const,
+    TOP_ITEMS: (range?: object) => ["analytics-top-items", range] as const,
     ITEM_TREND: (itemName: string) =>
       ["analytics-item-trend", itemName] as const,
     NET_WORTH: "analytics-net-worth",

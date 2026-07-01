@@ -12,7 +12,7 @@ import type { IAnalyticsParams } from "@/types/analytics/analytics.types";
 
 export const useGetCategoryBreakdown = (params?: IAnalyticsParams) => {
   const { data, isLoading, isError } = useQuery({
-    queryKey: QUERY_KEYS.ANALYTICS.CATEGORIES(params as Record<string, unknown>),
+    queryKey: QUERY_KEYS.ANALYTICS.CATEGORIES(params),
     queryFn: () => fetchCategoryBreakdown(params),
   });
 

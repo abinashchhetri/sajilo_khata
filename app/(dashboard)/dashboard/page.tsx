@@ -71,8 +71,6 @@ const DashboardPage = () => {
   // Voice handling
   const handleTranscriptReady = (rawTranscript: string) => {
     const parsed = parseVoiceTranscript(rawTranscript);
-    console.log("[Voice] raw transcript:", rawTranscript);
-    console.log("[Voice] parsed:", parsed);
     setPendingVoice(parsed);
   };
 

@@ -73,7 +73,7 @@ const ItemTrendChart = ({ itemName, params }: Props) => {
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base capitalize">"{itemName}" — Monthly Trend</CardTitle>
+          <CardTitle className="text-base capitalize">&quot;{itemName}&quot; — Monthly Trend</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="py-8 text-center text-body-sm text-ink-muted">
@@ -95,7 +95,7 @@ const ItemTrendChart = ({ itemName, params }: Props) => {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base capitalize">
-          "{itemName}" — Monthly Trend
+          &quot;{itemName}&quot; — Monthly Trend
         </CardTitle>
       </CardHeader>
       <CardContent>

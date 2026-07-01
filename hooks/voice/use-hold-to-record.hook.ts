@@ -36,17 +36,32 @@ interface HoldToRecordState {
   stopRecording: () => void;
 }
 
-// SpeechRecognition (the class/interface) is missing from some TypeScript
-// DOM lib versions even though SpeechRecognitionEvent/ErrorEvent are present.
-// Declare just the instance shape; use the real event types from lib.dom so
-// the rec.onresult / rec.onerror assignments stay type-compatible.
+// SpeechRecognition types are absent from many TS DOM lib versions.
+// Define minimal local shapes covering only what this hook uses.
+interface ISpeechRecognitionErrorEvent {
+  error: string;
+  message: string;
+}
+
+interface ISpeechRecognitionAlternative {
+  transcript: string;
+}
+
+interface ISpeechRecognitionResult {
+  readonly 0: ISpeechRecognitionAlternative;
+}
+
+interface ISpeechRecognitionEvent {
+  results: ArrayLike<ISpeechRecognitionResult>;
+}
+
 interface ISpeechRecognition {
   continuous: boolean;
   interimResults: boolean;
   lang: string;
   onstart: (() => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: ISpeechRecognitionErrorEvent) => void) | null;
+  onresult: ((event: ISpeechRecognitionEvent) => void) | null;
   onend: (() => void) | null;
   start(): void;
   stop(): void;
@@ -104,11 +119,11 @@ export const useHoldToRecord = ({
 
     rec.onstart = () => console.log("[Voice] recognition started");
 
-    rec.onerror = (event: SpeechRecognitionErrorEvent) => {
+    rec.onerror = (event) => {
       console.error("[Voice] error:", event.error, event.message);
     };
 
-    rec.onresult = (event: SpeechRecognitionEvent) => {
+    rec.onresult = (event) => {
       const sessionText = Array.from(event.results)
         .map((r) => r[0].transcript)
         .join(" ");
