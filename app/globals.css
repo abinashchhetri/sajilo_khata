@@ -1,0 +1,162 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Design tokens — sourced from DESIGN-notion.md. Warm paper canvas, near-black
+ * ink type, one structural blue accent, decorative sticker palette reserved
+ * for category/status dots only. Do not introduce colors outside this set.
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* Literal radius scale, exposed as raw vars for arbitrary-value classes
+       (rounded-[min(var(--radius-md),...)]) as well as via tailwind.config. */
+    --radius-xs: 4px;
+    --radius-sm: 5px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    /* Brand & accent */
+    --primary: #0075de;
+    --primary-foreground: #ffffff;
+    --primary-active: #005bab;
+    --hero: #213183; /* deep indigo — reserved for a single inverted moment, not chrome */
+
+    /* Decorative sticker palette — illustrations, category dots, chart series only */
+    --accent-sky: #62aef0;
+    --accent-purple: #d6b6f6;
+    --accent-purple-deep: #391c57;
+    --accent-pink: #ff64c8;
+    --accent-orange: #dd5b00;
+    --accent-orange-deep: #793400;
+    --accent-teal: #2a9d99;
+    --accent-green: #1aae39;
+    --accent-brown: #523410;
+
+    /* Surface */
+    --background: #f6f5f4; /* canvas-soft — page canvas */
+    --canvas: #ffffff;
+    --canvas-soft: #f6f5f4;
+    --foreground: #000000;
+
+    --card: #ffffff;
+    --card-foreground: #000000;
+
+    --popover: #ffffff;
+    --popover-foreground: #000000;
+
+    /* button-secondary: white surface, ink text — never a second structural color */
+    --secondary: #ffffff;
+    --secondary-foreground: #000000;
+
+    --muted: #f6f5f4;
+    --muted-foreground: #615d59;
+
+    --accent: #f6f5f4;
+    --accent-foreground: #000000;
+
+    /* No semantic error ramp in the brand — destructive borrows the sticker
+       orange, the closest "warning" hue, per DESIGN-notion.md's note that
+       status is carried by the sticker palette, not a dedicated ramp. */
+    --destructive: #dd5b00;
+    --destructive-foreground: #ffffff;
+
+    --border: #e6e6e6; /* hairline */
+    --input: #dddddd;
+    --ring: #0075de;
+
+    --ink: #000000;
+    --ink-secondary: #31302e;
+    --ink-muted: #615d59;
+    --ink-faint: #a39e98;
+    --hairline: #e6e6e6;
+
+    --chart-1: #62aef0;
+    --chart-2: #d6b6f6;
+    --chart-3: #ff64c8;
+    --chart-4: #2a9d99;
+    --chart-5: #1aae39;
+
+    --sidebar: #ffffff;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #0075de;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f6f5f4;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #e6e6e6;
+    --sidebar-ring: #0075de;
+
+    /* Elevation — many near-transparent layers, never a hard cast */
+    --shadow-level-1:
+      0 0.175px 1.041px rgba(0, 0, 0, 0.01),
+      0 0.8px 2.925px rgba(0, 0, 0, 0.02),
+      0 2.025px 7.847px rgba(0, 0, 0, 0.027),
+      0 4px 18px rgba(0, 0, 0, 0.04);
+    --shadow-level-2:
+      0 0.4px 2.2px rgba(0, 0, 0, 0.012),
+      0 1.2px 6px rgba(0, 0, 0, 0.018),
+      0 3px 13px rgba(0, 0, 0, 0.025),
+      0 7px 26px rgba(0, 0, 0, 0.035),
+      0 23px 52px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark {
+    --primary: #0075de;
+    --primary-foreground: #ffffff;
+    --primary-active: #005bab;
+
+    --background: #15130f;
+    --canvas: #1c1a16;
+    --canvas-soft: #15130f;
+    --foreground: #f6f5f4;
+
+    --card: #1c1a16;
+    --card-foreground: #f6f5f4;
+
+    --popover: #1c1a16;
+    --popover-foreground: #f6f5f4;
+
+    --secondary: #1c1a16;
+    --secondary-foreground: #f6f5f4;
+
+    --muted: #26241f;
+    --muted-foreground: #a39e98;
+
+    --accent: #26241f;
+    --accent-foreground: #f6f5f4;
+
+    --destructive: #dd5b00;
+    --destructive-foreground: #ffffff;
+
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.15);
+    --ring: #0075de;
+
+    --chart-1: #62aef0;
+    --chart-2: #d6b6f6;
+    --chart-3: #ff64c8;
+    --chart-4: #2a9d99;
+    --chart-5: #1aae39;
+
+    --sidebar: #1c1a16;
+    --sidebar-foreground: #f6f5f4;
+    --sidebar-primary: #0075de;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #26241f;
+    --sidebar-accent-foreground: #f6f5f4;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: #0075de;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

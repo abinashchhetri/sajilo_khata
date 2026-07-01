@@ -1,0 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ROUTES
+// ─────────────────────────────────────────────────────────────────────────────
+// All app routes in one place.
+// Use these when doing router.push() or building href values.
+// Never write a route path string directly in a component or hook.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const ROUTES = {
+  HOME: "/",
+  LOGIN: "/login",
+  DASHBOARD: "/dashboard",
+  TRANSACTIONS: "/transactions",
+  TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
+  ACCOUNTS: "/accounts",
+  ACCOUNT_DETAIL: (id: string) => `/accounts/${id}`,
+  TRANSFERS: "/accounts/transfers",
+  INVESTMENTS: "/investments",
+  ANALYTICS: "/analytics",
+  SETTINGS: "/settings",
+} as const;
