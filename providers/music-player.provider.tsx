@@ -97,8 +97,11 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
     prepareNextFiredRef.current = false;
     try {
       const result = await playTrackService(track.id);
-      setCurrentTrack(track);
-      setStreamUrl(result.data.streamUrl);
+      const url =
+        result.data.streamUrl ??
+        `${process.env.NEXT_PUBLIC_API_URL}/music/stream/${result.data.track.id}`;
+      setCurrentTrack(result.data.track);
+      setStreamUrl(url);
       setIsPlaying(true);
     } catch {
       toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
@@ -118,8 +121,15 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
           track.artist,
           track.coverUrl,
         );
+        // Backend returns streamUrl=null when the track is not yet cached.
+        // In that case, stream live via the /music/stream/:id endpoint which
+        // authenticates with the httpOnly cookie (crossOrigin="use-credentials"
+        // on the <audio> element ensures the cookie is sent cross-origin).
+        const url =
+          result.streamUrl ??
+          `${process.env.NEXT_PUBLIC_API_URL}/music/stream/${result.track.id}`;
         setCurrentTrack(result.track);
-        setStreamUrl(result.streamUrl);
+        setStreamUrl(url);
         setIsPlaying(true);
       } catch {
         toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);

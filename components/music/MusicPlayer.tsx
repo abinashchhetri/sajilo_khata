@@ -88,6 +88,7 @@ const MusicPlayer = () => {
       <audio
         ref={audioRef}
         src={streamUrl ?? undefined}
+        crossOrigin="use-credentials"
         onTimeUpdate={() => {
           const t = audioRef.current?.currentTime ?? 0;
           const d = audioRef.current?.duration ?? 0;
