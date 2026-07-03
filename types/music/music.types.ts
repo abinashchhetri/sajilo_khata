@@ -36,7 +36,8 @@ export interface IPrepareNextResponse {
 
 export interface IPlayTrackResponse {
   track: ITrack;
-  streamUrl: string;
+  streamUrl: string | null;
+  caching?: boolean;
 }
 
 export interface IRecommendationCacheItem {
