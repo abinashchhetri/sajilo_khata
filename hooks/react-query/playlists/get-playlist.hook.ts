@@ -1,23 +1,23 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// ROUTES
+// useGetPlaylist
 // ─────────────────────────────────────────────────────────────────────────────
-// All app routes in one place.
-// Use these when doing router.push() or building href values.
-// Never write a route path string directly in a component or hook.
+// Fetches a single playlist with its full track list. Only fires when an id is
+// present — guards against empty string from uninitialised route params.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const ROUTES = {
-  HOME: "/",
-  LOGIN: "/login",
-  DASHBOARD: "/dashboard",
-  TRANSACTIONS: "/transactions",
-  TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
-  ACCOUNTS: "/accounts",
-  ACCOUNT_DETAIL: (id: string) => `/accounts/${id}`,
-  TRANSFERS: "/accounts/transfers",
-  INVESTMENTS: "/investments",
-  ANALYTICS: "/analytics",
-  SETTINGS: "/settings",
-  MUSIC: "/music",
-  PLAYLIST_DETAIL: (id: string) => `/music/playlists/${id}`,
-} as const;
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { fetchPlaylistById } from "@/services/playlists/playlists.service";
+import { QUERY_KEYS } from "@/lib/constants/query-keys.constants";
+
+export const useGetPlaylist = (id: string) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: QUERY_KEYS.PLAYLISTS.SINGLE(id),
+    queryFn: () => fetchPlaylistById(id),
+    enabled: !!id,
+  });
+
+  return { playlist: data?.data, isLoading, isError };
+};

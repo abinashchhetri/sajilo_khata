@@ -18,6 +18,7 @@ interface Props {
   ctaLabel?: string;
   onCta?: () => void;
   className?: string;
+  darkSurface?: boolean;
 }
 
 // ─────── Component ───────────────────────────────────────────────────────────
@@ -29,23 +30,28 @@ const EmptyState = ({
   ctaLabel,
   onCta,
   className,
+  darkSurface = false,
 }: Props) => {
   return (
     <div
       className={cn(
         "flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center",
+        darkSurface ? "border-zinc-800" : "",
         className,
       )}
     >
       {icon && (
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <div className={cn(
+          "flex h-12 w-12 items-center justify-center rounded-full",
+          darkSurface ? "bg-zinc-800 text-zinc-500" : "bg-muted text-muted-foreground",
+        )}>
           {icon}
         </div>
       )}
       <div className="space-y-1">
-        <p className="text-sm font-medium">{message}</p>
+        <p className={cn("text-sm font-medium", darkSurface ? "text-zinc-400" : "")}>{message}</p>
         {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className={cn("text-xs", darkSurface ? "text-zinc-500" : "text-muted-foreground")}>{description}</p>
         )}
       </div>
       {ctaLabel && onCta && (

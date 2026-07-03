@@ -88,7 +88,6 @@ export const useHoldToRecord = ({
 
   useEffect(() => {
     const api = getSpeechRecognitionAPI();
-    console.log("[Voice] SpeechRecognition available:", !!api);
     setIsSupported(!!api);
   }, []);
 
@@ -117,7 +116,7 @@ export const useHoldToRecord = ({
     rec.interimResults = true;
     rec.lang = "en-US";
 
-    rec.onstart = () => console.log("[Voice] recognition started");
+    rec.onstart = () => {};
 
     rec.onerror = (event) => {
       console.error("[Voice] error:", event.error, event.message);
@@ -131,18 +130,11 @@ export const useHoldToRecord = ({
         .filter(Boolean)
         .join(" ")
         .trim();
-      console.log("[Voice] heard:", full);
       setTranscript(full);
       transcriptRef.current = full;
     };
 
     rec.onend = () => {
-      console.log(
-        "[Voice] session ended — shouldRestart:",
-        shouldRestartRef.current,
-        "| transcript so far:",
-        transcriptRef.current,
-      );
 
       if (shouldRestartRef.current) {
         // Auto-stopped mid-hold — restart immediately and carry transcript over

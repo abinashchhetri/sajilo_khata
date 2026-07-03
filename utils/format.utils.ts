@@ -24,3 +24,10 @@ export const truncate = (str: string, maxLength: number): string => {
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength).trimEnd() + "…";
 };
+
+// Formats a duration in seconds to m:ss — 185 → "3:05"
+export const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+  return `${mins}:${secs}`;
+};
