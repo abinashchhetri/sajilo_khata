@@ -56,4 +56,19 @@ export const TOAST_MESSAGES = {
     DELETED: "Deleted successfully",
     UNAUTHORIZED: "You need to be logged in to do that",
   },
+
+  MUSIC: {
+    PLAY_ERROR: "Could not load track. Try again.",
+    PREPARE_FAILED: "Next track is not ready yet.",
+    DOWNLOAD_STARTED: "Track is being prepared...",
+  },
+
+  PLAYLISTS: {
+    CREATED: "Playlist created",
+    UPDATED: "Playlist updated",
+    DELETED: "Playlist deleted",
+    TRACK_ADDED: "Track added to playlist",
+    TRACK_REMOVED: "Track removed from playlist",
+    MUST_BE_CACHED: "Track must finish loading before adding to a playlist",
+  },
 } as const;

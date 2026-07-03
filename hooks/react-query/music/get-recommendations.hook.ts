@@ -1,23 +1,23 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// ROUTES
+// useGetRecommendations
 // ─────────────────────────────────────────────────────────────────────────────
-// All app routes in one place.
-// Use these when doing router.push() or building href values.
-// Never write a route path string directly in a component or hook.
+// Fetches AI-generated recommendations seeded from the currently playing track.
+// Only fires when a trackId is present — no requests on empty/null state.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const ROUTES = {
-  HOME: "/",
-  LOGIN: "/login",
-  DASHBOARD: "/dashboard",
-  TRANSACTIONS: "/transactions",
-  TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
-  ACCOUNTS: "/accounts",
-  ACCOUNT_DETAIL: (id: string) => `/accounts/${id}`,
-  TRANSFERS: "/accounts/transfers",
-  INVESTMENTS: "/investments",
-  ANALYTICS: "/analytics",
-  SETTINGS: "/settings",
-  MUSIC: "/music",
-  PLAYLIST_DETAIL: (id: string) => `/music/playlists/${id}`,
-} as const;
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { getRecommendations } from "@/services/music/music.service";
+import { QUERY_KEYS } from "@/lib/constants/query-keys.constants";
+
+export const useGetRecommendations = (trackId: string) => {
+  const { data, isLoading } = useQuery({
+    queryKey: QUERY_KEYS.MUSIC.RECOMMENDATIONS(trackId),
+    queryFn: () => getRecommendations(trackId),
+    enabled: !!trackId,
+  });
+
+  return { recommendations: data?.data ?? [], isLoading };
+};

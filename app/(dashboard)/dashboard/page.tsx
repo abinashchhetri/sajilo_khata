@@ -21,16 +21,20 @@ import {
   BarChart2,
   TrendingDown,
   ArrowRight,
+  Music,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import TransactionCard from "@/components/transactions/TransactionCard";
 import VoiceRecordButton from "@/components/voice/VoiceRecordButton";
 import ConfirmationCard from "@/components/voice/ConfirmationCard";
+import NowPlayingWidget from "@/components/music/NowPlayingWidget";
+import TrackCard from "@/components/music/TrackCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/context/use-auth.hook";
 import { useGetAccounts } from "@/hooks/react-query/accounts/get-accounts.hook";
 import { useGetTransactions } from "@/hooks/react-query/transactions/get-transactions.hook";
+import { useGetMusicHistory } from "@/hooks/react-query/music/get-music-history.hook";
 import { parseVoiceTranscript } from "@/utils/voice-parser.utils";
 import { formatCurrency } from "@/utils/format.utils";
 import { ROUTES } from "@/lib/constants/routes.constants";
@@ -53,6 +57,9 @@ const DashboardPage = () => {
     (sum: number, a: IAccount) => sum + a.currentBalance,
     0,
   );
+
+  // Recently played — 3 tracks for dashboard widget
+  const { tracks: recentlyPlayed, isLoading: musicLoading } = useGetMusicHistory({ limit: 3 });
 
   // Today's transactions — for spend stat and recent activity
   const { transactions, isLoading: txLoading } = useGetTransactions({
@@ -176,6 +183,36 @@ const DashboardPage = () => {
             </Card>
           </Link>
         ))}
+      </div>
+
+      {/* ── Now Playing + Recently Played ── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-body-sm font-medium text-foreground">Music</p>
+          <Link
+            href={ROUTES.MUSIC}
+            className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Music size={12} />
+            Library
+          </Link>
+        </div>
+
+        <NowPlayingWidget />
+
+        {musicLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-14 rounded-lg" />
+            ))}
+          </div>
+        ) : recentlyPlayed.length > 0 ? (
+          <div className="space-y-1">
+            {recentlyPlayed.map((track) => (
+              <TrackCard key={track.id} track={track} compact />
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {/* ── Recent activity ── */}

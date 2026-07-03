@@ -2,7 +2,7 @@
 // MobileNav
 // ─────────────────────────────────────────────────────────────────────────────
 // Fixed bottom navigation bar visible on mobile only (hidden md+). Provides
-// icon-based access to the five primary sections. Labels and active indicator
+// icon-based access to the primary sections. Labels and active indicator
 // styling are minimal here — full polish added in Step 11.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ import {
   ReceiptText,
   ArrowLeftRight,
   Wallet,
-  BarChart3,
+  Music,
 } from "lucide-react";
 
 import { ROUTES } from "@/lib/constants/routes.constants";
@@ -23,14 +23,15 @@ import { cn } from "@/lib/utils";
 
 // ─────── Nav config ──────────────────────────────────────────────────────────
 
-// Settings and Investments are omitted from mobile nav — five tabs is the
-// practical limit; Investments is accessible via the sidebar on desktop.
+// Settings, Investments, and Analytics are omitted from mobile nav — five tabs
+// is the practical limit. They remain accessible via the sidebar on desktop.
+// Music replaces Analytics on mobile as a primary feature.
 const MOBILE_NAV_ITEMS = [
   { label: "Dashboard", href: ROUTES.DASHBOARD, icon: LayoutDashboard },
   { label: "Transactions", href: ROUTES.TRANSACTIONS, icon: ReceiptText },
   { label: "Accounts", href: ROUTES.ACCOUNTS, icon: Wallet },
   { label: "Transfers", href: ROUTES.TRANSFERS, icon: ArrowLeftRight },
-  { label: "Analytics", href: ROUTES.ANALYTICS, icon: BarChart3 },
+  { label: "Music", href: ROUTES.MUSIC, icon: Music },
 ] as const;
 
 // ─────── Component ───────────────────────────────────────────────────────────

@@ -54,4 +54,17 @@ export const QUERY_KEYS = {
   CATEGORIES: {
     ALL: "all-categories",
   },
+
+  MUSIC: {
+    PRESIGNED: (id: string) => ["music-presigned", id] as const,
+    RECOMMENDATIONS: (id: string) => ["music-recommendations", id] as const,
+    HISTORY: (params?: object) => ["music-history", params] as const,
+    SEARCH: (q: string) => ["music-search", q] as const,
+    FIND: (q: string) => ["music-find", q] as const,
+  },
+
+  PLAYLISTS: {
+    ALL: "all-playlists",
+    SINGLE: (id: string) => ["playlist", id] as const,
+  },
 } as const;
