@@ -2,20 +2,20 @@
 // Voice Parser Utilities
 // ─────────────────────────────────────────────────────────────────────────────
 // Pure functions — no side effects, no hooks. Takes a raw speech transcript
-// and extracts structured line items + a guessed account type.
+// and extracts structured line items + the matched account from the backend
+// keyword list.
 //
 // Parsing strategy:
-//   "dal 100 milk 30 bank"
-//   → tokens: ["dal", "100", "milk", "30", "bank"]
+//   "dal 100 milk 30"
+//   → tokens: ["dal", "100", "milk", "30"]
 //   → accumulate words into nameParts until a number is found
 //   → emit { name: "dal", amount: 100 }, then { name: "milk", amount: 30 }
-//   → "bank" is an account keyword → skipped from name parts, detected separately
 //
 // Multi-word item names work naturally:
 //   "cooking oil 200" → nameParts=["cooking","oil"], num=200 → { name:"cooking oil", amount:200 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { ACCOUNT_KEYWORDS } from "@/lib/constants/voice.constants";
+import type { IAccountVoiceKeyword } from "@/types/accounts/accounts.types";
 import type { TParsedVoiceEntry } from "@/types/transactions/transactions.types";
 
 // ─────── parseLineItems ───────────────────────────────────────────────────────
@@ -36,9 +36,6 @@ export const parseLineItems = (
 
   for (const token of tokens) {
     if (!token) continue;
-
-    // Skip account keywords — they're detected separately
-    if (isAccountKeyword(token)) continue;
 
     const num = parseFloat(token.replace(/,/g, ""));
     const isNumber = !isNaN(num) && num > 0;
@@ -61,22 +58,17 @@ export const parseLineItems = (
 
 // ─────── detectAccountFromTranscript ─────────────────────────────────────────
 
-export const detectAccountFromTranscript = (transcript: string): string | null => {
-  const lower = transcript
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+export const detectAccountFromTranscript = (
+  transcript: string,
+  accountKeywords: IAccountVoiceKeyword[],
+): { accountId: string; accountName: string } | null => {
+  const lower = transcript.toLowerCase();
 
-  // Sort keys longest-first so multi-word keywords ("e sewa") match before
-  // their substrings ("e") would
-  const keywords = Object.keys(ACCOUNT_KEYWORDS).sort((a, b) => b.length - a.length);
-
-  for (const keyword of keywords) {
-    // Whole-word match: word boundary on both sides
-    const pattern = new RegExp(`(?:^|\\s)${escapeRegExp(keyword)}(?:\\s|$)`);
-    if (pattern.test(lower)) {
-      return ACCOUNT_KEYWORDS[keyword];
+  for (const account of accountKeywords) {
+    // allMatchTerms already includes name + type + custom keywords, all lowercased
+    const matched = account.allMatchTerms.some((term) => lower.includes(term));
+    if (matched) {
+      return { accountId: account.id, accountName: account.name };
     }
   }
 
@@ -85,16 +77,19 @@ export const detectAccountFromTranscript = (transcript: string): string | null =
 
 // ─────── parseVoiceTranscript ─────────────────────────────────────────────────
 
-export const parseVoiceTranscript = (rawTranscript: string): TParsedVoiceEntry => ({
+export const parseVoiceTranscript = (
+  rawTranscript: string,
+  accountKeywords: IAccountVoiceKeyword[],
+): TParsedVoiceEntry => ({
   lineItems: parseLineItems(rawTranscript),
-  detectedAccountType: detectAccountFromTranscript(rawTranscript),
+  detectedAccount: detectAccountFromTranscript(rawTranscript, accountKeywords),
   rawTranscript,
 });
 
 // ─────── Helpers ──────────────────────────────────────────────────────────────
 
-const isAccountKeyword = (token: string): boolean =>
-  Object.prototype.hasOwnProperty.call(ACCOUNT_KEYWORDS, token);
-
 const escapeRegExp = (str: string): string =>
   str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Exported only for tests — not used internally anymore
+export { escapeRegExp };

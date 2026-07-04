@@ -6,6 +6,10 @@
 // Same-account guard: the .refine() on CreateTransferSchema catches this at
 // the Zod level so the request never fires. The From select also excludes the
 // currently selected To account, and vice versa, as a visual hint.
+//
+// Balance hint: shows the available balance below the From select and warns
+// inline when the entered amount exceeds it. Submission is NOT blocked —
+// the backend is the source of truth and returns a precise error message.
 // ─────────────────────────────────────────────────────────────────────────────
 
 "use client";
@@ -31,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetAccounts } from "@/hooks/react-query/accounts/get-accounts.hook";
+import { formatCurrency } from "@/utils/format.utils";
 import {
   CreateTransferSchema,
   type TCreateTransfer,
@@ -62,6 +67,12 @@ const TransferForm = ({ onSubmit, isPending }: Props) => {
 
   const fromAccountId = form.watch("fromAccountId");
   const toAccountId = form.watch("toAccountId");
+  const amount = form.watch("amount");
+
+  const fromAccount = activeAccounts.find((a: IAccount) => a.id === fromAccountId);
+  const availableBalance = fromAccount?.currentBalance ?? 0;
+  const isOverBalance =
+    !!fromAccount && !!amount && Number(amount) > availableBalance;
 
   const handleSubmit = async (data: TCreateTransfer) => {
     await onSubmit(data);
@@ -94,6 +105,11 @@ const TransferForm = ({ onSubmit, isPending }: Props) => {
                     ))}
                 </SelectContent>
               </Select>
+              {fromAccount && (
+                <p className="text-xs text-muted-foreground">
+                  Available: {formatCurrency(availableBalance)}
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -144,6 +160,11 @@ const TransferForm = ({ onSubmit, isPending }: Props) => {
                   value={field.value ?? ""}
                 />
               </FormControl>
+              {isOverBalance && (
+                <p className="text-xs text-destructive">
+                  Amount exceeds available balance
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}

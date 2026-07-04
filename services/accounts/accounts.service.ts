@@ -12,6 +12,7 @@ import apiClient from "@/services";
 import type { TApiResponse } from "@/types/api.types";
 import type {
   IAccount,
+  IAccountVoiceKeyword,
   ICreateAccount,
   IFindAllAccountsParams,
   IUpdateAccount,
@@ -59,4 +60,9 @@ export const updateAccount = async ({
 // hook's onError shows a specific DELETE_BLOCKED message for that case.
 export const deleteAccount = async (accountId: string): Promise<void> => {
   await apiClient.delete(`/accounts/${accountId}`, { _skipToast: true });
+};
+
+export const fetchAccountVoiceKeywords = async (): Promise<IAccountVoiceKeyword[]> => {
+  const { data } = await apiClient.get("/accounts/voice-keywords");
+  return data.data;
 };

@@ -9,6 +9,7 @@
 // - prepareNextFiredRef is a useRef so onTimeUpdate (~4×/s) never re-renders.
 // - isPlaying→play/pause useEffect is the sole audio controller.
 // - streamUrl change resets counters + fire guard for a clean start.
+// - advanceToNext is async (queue system); skip button shows a spinner while advancing.
 // ─────────────────────────────────────────────────────────────────────────────
 
 "use client";
@@ -27,7 +28,8 @@ import {
 } from "lucide-react";
 
 import { useMusicPlayer } from "@/hooks/context/use-music-player.hook";
-import { useHandlePrepareNext } from "@/hooks/react-query/music/post-prepare-next.hook";
+import { peekQueue } from "@/services/music/music.service";
+import UpcomingQueue from "@/components/music/UpcomingQueue";
 import { formatDuration, truncate } from "@/utils/format.utils";
 import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
 
@@ -37,28 +39,31 @@ const MusicPlayer = () => {
   const {
     currentTrack,
     streamUrl,
-    nextTrack,
     isPlaying,
     isLoading,
+    isAdvancing,
     volume,
     pauseTrack,
     resumeTrack,
-    setNextReady,
     advanceToNext,
     setVolume,
     setIsLoading,
     setPlaybackPosition,
   } = useMusicPlayer();
 
-  const { handlePrepareNext } = useHandlePrepareNext();
   const audioRef = useRef<HTMLAudioElement>(null);
   const prepareNextFiredRef = useRef(false);
+  // Ref mirrors isPlaying so the streamUrl effect can read the latest value
+  // without needing isPlaying as a dependency (which would cause load() on pause).
+  const isPlayingRef = useRef(isPlaying);
+  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  // play/pause toggle — fires only when user explicitly pauses/resumes
   useEffect(() => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -68,10 +73,18 @@ const MusicPlayer = () => {
     }
   }, [isPlaying]);
 
+  // Reload the audio element whenever the source changes (track advance / new play).
+  // Without an explicit load() + play() the browser keeps the old track playing
+  // even though React has updated the src prop.
   useEffect(() => {
     setCurrentTime(0);
     setDuration(0);
     prepareNextFiredRef.current = false;
+    if (!audioRef.current || !streamUrl) return;
+    audioRef.current.load();
+    if (isPlayingRef.current) {
+      audioRef.current.play().catch(() => {});
+    }
   }, [streamUrl]);
 
   useEffect(() => {
@@ -81,6 +94,8 @@ const MusicPlayer = () => {
   if (!currentTrack) return null;
 
   return (
+    <>
+    <UpcomingQueue />
     <div
       className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center border-t border-zinc-800 bg-zinc-950 px-4"
       style={{ boxShadow: "0 -8px 32px rgba(0,0,0,0.45)" }}
@@ -88,29 +103,30 @@ const MusicPlayer = () => {
       <audio
         ref={audioRef}
         src={streamUrl ?? undefined}
-        crossOrigin="use-credentials"
         onTimeUpdate={() => {
           const t = audioRef.current?.currentTime ?? 0;
           const d = audioRef.current?.duration ?? 0;
           setCurrentTime(t);
           setDuration(d);
           setPlaybackPosition(t, d);
+          // Informational peek at 30s before end — warms up the backend queue
+          // response without mutating any state (useGetQueue polls independently).
           if (d > 0 && d - t <= 30 && !prepareNextFiredRef.current) {
             prepareNextFiredRef.current = true;
-            handlePrepareNext(currentTrack.id)
-              .then((res) => {
-                if (res?.data?.ready && res.data.track && res.data.streamUrl) {
-                  setNextReady(res.data.track, res.data.streamUrl);
-                }
-              })
-              .catch(() => {});
+            peekQueue().catch(() => {});
           }
         }}
-        onEnded={() => { prepareNextFiredRef.current = false; advanceToNext(); }}
+        onEnded={() => {
+          prepareNextFiredRef.current = false;
+          advanceToNext().catch(() => {});
+        }}
         onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
         onCanPlay={() => setIsLoading(false)}
         onWaiting={() => setIsLoading(true)}
-        onError={() => { toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR); setIsLoading(false); }}
+        onError={() => {
+          toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
+          setIsLoading(false);
+        }}
       />
 
       {/* ── Left: cover + track info ─────────────────────────────────────── */}
@@ -155,7 +171,17 @@ const MusicPlayer = () => {
           </button>
 
           <button
-            onClick={isPlaying ? pauseTrack : resumeTrack}
+            onClick={() => {
+              if (isPlaying) {
+                pauseTrack();
+                audioRef.current?.pause();
+              } else {
+                resumeTrack();
+                // Call play() directly inside the click handler so iOS Safari
+                // recognises it as a user-gesture-initiated playback request.
+                audioRef.current?.play().catch(() => {});
+              }
+            }}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-zinc-950 transition-transform hover:scale-105 active:scale-95"
             aria-label={isPlaying ? "Pause" : "Play"}
           >
@@ -169,12 +195,16 @@ const MusicPlayer = () => {
           </button>
 
           <button
-            onClick={advanceToNext}
-            disabled={!nextTrack}
+            onClick={() => advanceToNext().catch(() => {})}
+            disabled={isAdvancing}
             className="text-zinc-400 transition-colors hover:text-zinc-100 disabled:text-zinc-700"
-            title={nextTrack ? "Skip to next" : "No next track"}
+            title={isAdvancing ? "Loading next track…" : "Skip to next"}
           >
-            <SkipForward size={17} />
+            {isAdvancing ? (
+              <Loader2 size={17} className="animate-spin" />
+            ) : (
+              <SkipForward size={17} />
+            )}
           </button>
         </div>
 
@@ -235,6 +265,7 @@ const MusicPlayer = () => {
         />
       </div>
     </div>
+    </>
   );
 };
 

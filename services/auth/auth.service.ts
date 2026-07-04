@@ -7,7 +7,7 @@
 
 import apiClient from "@/services";
 import type { TApiResponse } from "@/types/api.types";
-import type { IUser } from "@/types/auth/auth.types";
+import type { IUser, IOnboardingStatus } from "@/types/auth/auth.types";
 
 // Fetches the currently authenticated user — called on every app load to
 // establish session state. Returns 401 if the httpOnly cookie is absent/expired.
@@ -20,4 +20,9 @@ export const fetchCurrentUser = async (): Promise<TApiResponse<IUser>> => {
 // Navigation to /login happens in the auth context after this resolves.
 export const logout = async (): Promise<void> => {
   await apiClient.post("/auth/logout");
+};
+
+export const fetchOnboardingStatus = async (): Promise<IOnboardingStatus> => {
+  const { data } = await apiClient.get("/auth/onboarding-status");
+  return data.data;
 };

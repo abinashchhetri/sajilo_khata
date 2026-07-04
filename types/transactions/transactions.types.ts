@@ -67,6 +67,6 @@ export interface IFindAllTransactionsParams extends IDateRangeFilter {
 // Shape the voice parser produces before the ConfirmationCard pre-fills a form
 export interface TParsedVoiceEntry {
   lineItems: { name: string; amount: number }[];
-  detectedAccountType: string | null;
+  detectedAccount: { accountId: string; accountName: string } | null;
   rawTranscript: string;
 }

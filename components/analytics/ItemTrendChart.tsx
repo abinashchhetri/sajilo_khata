@@ -36,17 +36,16 @@ interface Props {
 const CustomTooltip = ({
   active,
   payload,
-  label,
 }: {
   active?: boolean;
-  payload?: { value: number }[];
-  label?: string;
+  payload?: { value: number; payload: { month: string } }[];
 }) => {
-  if (!active || !payload?.length || !label) return null;
+  if (!active || !payload?.length) return null;
+  const month = payload[0].payload.month;
   return (
     <div className="rounded-md border border-hairline bg-canvas px-3 py-2 shadow-level-1 text-body-sm">
       <p className="font-medium text-foreground">
-        {format(parseISO(`${label}-01`), "MMM yyyy")}
+        {format(parseISO(`${month}-01`), "MMM yyyy")}
       </p>
       <p className="text-ink-muted">{formatCurrency(payload[0].value)}</p>
     </div>

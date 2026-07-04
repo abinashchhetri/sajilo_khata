@@ -2,7 +2,8 @@
 // useHandleDeleteTransaction
 // ─────────────────────────────────────────────────────────────────────────────
 // Deletes a transaction. The backend reverses the account balance effect.
-// Invalidates transactions, accounts (balance changed), and analytics dashboard.
+// On success: invalidates transactions, accounts, and all analytics keys so the
+// dashboard stats and recent activity reflect the deletion immediately.
 // The service sets _skipToast so this onError is the sole toast source.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -22,7 +23,11 @@ export const useHandleDeleteTransaction = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRANSACTIONS.ALL() });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ACCOUNTS.ALL] });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ANALYTICS.DASHBOARD() });
+      queryClient.invalidateQueries({ queryKey: ["analytics-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics-categories"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS.ACCOUNTS_VIEW] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS.NET_WORTH] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS.RECENT] });
       toast.success(TOAST_MESSAGES.TRANSACTIONS.DELETED);
     },
     onError: () => {

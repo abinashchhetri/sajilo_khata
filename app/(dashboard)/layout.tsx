@@ -2,17 +2,20 @@
 // Dashboard Layout
 // ─────────────────────────────────────────────────────────────────────────────
 // Route-group layout for all protected pages under (dashboard)/.
-// Checks auth state once here — every child page is unconditionally protected,
-// so there is no per-page guard needed. Shows a spinner while auth resolves to
-// avoid a flash of unauthenticated content before the redirect fires.
+// Two guards run in sequence:
+//   1. Auth guard — redirects unauthenticated users to /login.
+//   2. Onboarding guard — redirects users with no accounts to /setup.
+//      The /setup page itself is inside this route group (for Provider context)
+//      but renders bare — no Sidebar/Navbar — so it never triggers a loop.
 // ─────────────────────────────────────────────────────────────────────────────
 
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import { useAuth } from "@/hooks/context/use-auth.hook";
+import { useGetOnboardingStatus } from "@/hooks/react-query/auth/get-onboarding-status.hook";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import MobileNav from "@/components/layout/MobileNav";
@@ -24,15 +27,33 @@ import { ROUTES } from "@/lib/constants/routes.constants";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isLoading, isAuthenticated } = useAuth();
+  const { isOnboardingComplete, isLoading: onboardingLoading } =
+    useGetOnboardingStatus();
   const router = useRouter();
+  const pathname = usePathname();
 
+  // Auth redirect
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace(ROUTES.LOGIN);
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) {
+  // Onboarding redirect — only fires once both auth and onboarding are resolved
+  useEffect(() => {
+    if (
+      !isLoading &&
+      isAuthenticated &&
+      !onboardingLoading &&
+      !isOnboardingComplete &&
+      pathname !== ROUTES.SETUP
+    ) {
+      router.replace(ROUTES.SETUP);
+    }
+  }, [isLoading, isAuthenticated, onboardingLoading, isOnboardingComplete, pathname, router]);
+
+  // Spinner while either loading state is pending
+  if (isLoading || (isAuthenticated && onboardingLoading)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -40,10 +61,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // Render nothing while the redirect is in flight so there's no content flash
-  if (!isAuthenticated) {
-    return null;
+  // Render nothing while auth redirect is in flight
+  if (!isAuthenticated) return null;
+
+  // Setup page — bare layout (no sidebar/navbar) so new users can create their
+  // first account without the normal shell appearing before onboarding completes
+  if (pathname === ROUTES.SETUP && !isOnboardingComplete) {
+    return (
+      <MusicPlayerProvider>
+        {children}
+      </MusicPlayerProvider>
+    );
   }
+
+  // Render nothing while onboarding redirect is in flight
+  if (!isOnboardingComplete) return null;
 
   return (
     <MusicPlayerProvider>

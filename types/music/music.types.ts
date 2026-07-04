@@ -28,10 +28,32 @@ export interface IStreamResponse {
   expiresIn: number;
 }
 
+/** @deprecated — queue system replaces prepare-next. Use IQueuePeekResponse. */
 export interface IPrepareNextResponse {
   ready: boolean;
   track: ITrack | null;
   streamUrl: string | null;
+}
+
+export interface IQueuePeekResponse {
+  hasNext: boolean;
+  track: ITrack | null;
+  streamUrl: string | null;
+}
+
+export interface IQueueAdvanceResponse {
+  track: ITrack;
+  streamUrl: string;
+}
+
+export interface IQueueTrackItem {
+  track: ITrack;
+  preparedAt: string;
+}
+
+export interface IQueueStateResponse {
+  length: number;
+  tracks: IQueueTrackItem[];
 }
 
 export interface IPlayTrackResponse {

@@ -9,6 +9,7 @@
 export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
+  CALLBACK: "/callback",
   DASHBOARD: "/dashboard",
   TRANSACTIONS: "/transactions",
   TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
@@ -20,4 +21,5 @@ export const ROUTES = {
   SETTINGS: "/settings",
   MUSIC: "/music",
   PLAYLIST_DETAIL: (id: string) => `/music/playlists/${id}`,
+  SETUP: "/setup",
 } as const;
