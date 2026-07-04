@@ -13,6 +13,7 @@ import Image from "next/image";
 import { Music, Pause, Play } from "lucide-react";
 
 import { useMusicPlayer } from "@/hooks/context/use-music-player.hook";
+import { useGetQueue } from "@/hooks/react-query/music/get-queue.hook";
 import { truncate } from "@/utils/format.utils";
 import { ROUTES } from "@/lib/constants/routes.constants";
 
@@ -27,6 +28,7 @@ const NowPlayingWidget = () => {
     pauseTrack,
     resumeTrack,
   } = useMusicPlayer();
+  const { queueLength, nextTrack } = useGetQueue();
 
   const progressPct =
     duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0;
@@ -85,6 +87,15 @@ const NowPlayingWidget = () => {
           <p className="truncate text-xs text-zinc-400">
             {truncate(currentTrack.artist, 28)}
           </p>
+          {queueLength > 0 && nextTrack ? (
+            <p className="truncate text-xs text-zinc-600">
+              Up Next: {truncate(nextTrack.title, 20)}
+            </p>
+          ) : (
+            <p className="animate-pulse text-xs text-zinc-600">
+              Preparing queue...
+            </p>
+          )}
         </div>
 
         {/* Play / Pause */}

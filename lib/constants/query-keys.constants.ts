@@ -8,12 +8,14 @@
 export const QUERY_KEYS = {
   AUTH: {
     CURRENT_USER: "current-user",
+    ONBOARDING_STATUS: "onboarding-status",
   },
 
   ACCOUNTS: {
     ALL: "all-accounts",
     SINGLE: (id: string) => ["account", id] as const,
     DEFAULT: "default-account",
+    VOICE_KEYWORDS: "accounts-voice-keywords",
   },
 
   TRANSACTIONS: {
@@ -49,6 +51,7 @@ export const QUERY_KEYS = {
     ITEM_TREND: (itemName: string) =>
       ["analytics-item-trend", itemName] as const,
     NET_WORTH: "analytics-net-worth",
+    RECENT: "analytics-recent",
   },
 
   CATEGORIES: {
@@ -61,6 +64,7 @@ export const QUERY_KEYS = {
     HISTORY: (params?: object) => ["music-history", params] as const,
     SEARCH: (q: string) => ["music-search", q] as const,
     FIND: (q: string) => ["music-find", q] as const,
+    QUEUE: "music-queue",
   },
 
   PLAYLISTS: {

@@ -19,6 +19,7 @@ import type {
   IItemTrendPoint,
   INetWorth,
 } from "@/types/analytics/analytics.types";
+import type { ITransaction } from "@/types/transactions/transactions.types";
 
 const buildQuery = (params?: IAnalyticsParams) =>
   params ? qs.stringify(params, { skipNulls: true }) : "";
@@ -67,4 +68,13 @@ export const fetchItemTrend = async (
 export const fetchNetWorth = async (): Promise<TApiResponse<INetWorth>> => {
   const { data } = await apiClient.get("/analytics/net-worth");
   return data;
+};
+
+export const fetchRecentTransactions = async (
+  limit: number = 5,
+): Promise<ITransaction[]> => {
+  const { data } = await apiClient.get(
+    `/analytics/recent-transactions?limit=${limit}`,
+  );
+  return data.data;
 };

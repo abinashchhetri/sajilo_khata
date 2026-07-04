@@ -70,8 +70,8 @@ const AccountDetailPage = () => {
     );
   }
 
-  const handleEdit = async (data: TCreateAccount) => {
-    await handleUpdateAccount({ accountId: id, body: { name: data.name } });
+  const handleEdit = async (data: TCreateAccount, voiceKeywords: string[]) => {
+    await handleUpdateAccount({ accountId: id, body: { name: data.name, voiceKeywords } });
     setIsEditOpen(false);
   };
 
@@ -224,6 +224,7 @@ const AccountDetailPage = () => {
           <AccountForm
             mode="edit"
             defaultValues={{ name: account.name, type: account.type }}
+            defaultVoiceKeywords={account.voiceKeywords ?? []}
             onSubmit={handleEdit}
             isPending={isUpdating}
           />

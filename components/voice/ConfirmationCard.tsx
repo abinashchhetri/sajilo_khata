@@ -5,8 +5,8 @@
 // A voice entry must NEVER save silently — the user always lands here first.
 //
 // Pre-fills:
-//   - accountId: account whose type matches detectedAccountType, falling back
-//     to the user's default account
+//   - accountId: account matched by voice keyword (defaultAccountId prop),
+//     falling back to the user's default account
 //   - type: always "expense" (voice entries are almost always spending)
 //
 // Uses the identical useHandleCreateTransaction mutation as the manual form,
@@ -42,11 +42,12 @@ import type {
 interface Props {
   parsed: TParsedVoiceEntry;
   onClose: () => void;
+  defaultAccountId?: string;
 }
 
 // ─────── Component ───────────────────────────────────────────────────────────
 
-const ConfirmationCard = ({ parsed, onClose }: Props) => {
+const ConfirmationCard = ({ parsed, onClose, defaultAccountId }: Props) => {
   const { accounts } = useGetAccounts();
   const { handleCreateTransaction, isPending } = useHandleCreateTransaction();
 
@@ -55,26 +56,30 @@ const ConfirmationCard = ({ parsed, onClose }: Props) => {
     [accounts],
   );
 
-  // Pick the account that matches the detected account type, then default account
-  const guessedAccount = useMemo(() => {
-    if (parsed.detectedAccountType) {
-      const match = activeAccounts.find(
-        (a: IAccount) => a.type === parsed.detectedAccountType,
-      );
-      if (match) return match;
-    }
-    return activeAccounts.find((a: IAccount) => a.isDefault) ?? activeAccounts[0];
-  }, [activeAccounts, parsed.detectedAccountType]);
+  // Resolved matched account from the voice keyword detection
+  const detectedAccount = useMemo(
+    () => (defaultAccountId ? activeAccounts.find((a) => a.id === defaultAccountId) : null),
+    [activeAccounts, defaultAccountId],
+  );
 
-  const [accountId, setAccountId] = useState(guessedAccount?.id ?? "");
+  // Fall back to default account if no keyword match
+  const initialAccount = useMemo(
+    () =>
+      detectedAccount ??
+      activeAccounts.find((a: IAccount) => a.isDefault) ??
+      activeAccounts[0],
+    [activeAccounts, detectedAccount],
+  );
+
+  const [accountId, setAccountId] = useState(initialAccount?.id ?? "");
   const [type, setType] = useState<TTransactionType>("expense");
 
-  // Backfill when guessedAccount resolves from loading (accounts fetched async)
+  // Backfill when initialAccount resolves from loading (accounts fetched async)
   useEffect(() => {
-    if (guessedAccount?.id && !accountId) {
-      setAccountId(guessedAccount.id);
+    if (initialAccount?.id && !accountId) {
+      setAccountId(initialAccount.id);
     }
-  }, [guessedAccount, accountId]);
+  }, [initialAccount, accountId]);
 
   const total = parsed.lineItems.reduce((sum, item) => sum + item.amount, 0);
   const canSave = !!accountId && parsed.lineItems.length > 0;
@@ -138,27 +143,29 @@ const ConfirmationCard = ({ parsed, onClose }: Props) => {
         )}
 
         {/* Account */}
-        <div className="flex items-center gap-3">
-          <span className="w-16 shrink-0 text-sm text-muted-foreground">
-            Account
-          </span>
-          <Select value={accountId} onValueChange={setAccountId}>
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="Select account" />
-            </SelectTrigger>
-            <SelectContent>
-              {activeAccounts.map((a: IAccount) => (
-                <SelectItem key={a.id} value={a.id}>
-                  <span>{a.name}</span>
-                  {parsed.detectedAccountType === a.type && (
-                    <span className="ml-1.5 text-xs text-muted-foreground">
-                      (detected)
-                    </span>
-                  )}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <span className="w-16 shrink-0 text-sm text-muted-foreground">
+              Account
+            </span>
+            <Select value={accountId} onValueChange={setAccountId}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select account" />
+              </SelectTrigger>
+              <SelectContent>
+                {activeAccounts.map((a: IAccount) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {detectedAccount && (
+            <p className="pl-[76px] text-xs text-muted-foreground">
+              Detected: {detectedAccount.name}
+            </p>
+          )}
         </div>
 
         {/* Type */}

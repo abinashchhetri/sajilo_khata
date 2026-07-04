@@ -30,6 +30,7 @@ export const TOAST_MESSAGES = {
     CREATED: "Transfer completed",
     DELETED: "Transfer removed",
     SAME_ACCOUNT_ERROR: "Choose two different accounts to transfer between",
+    INSUFFICIENT_BALANCE: "Insufficient balance",
   },
 
   INVESTMENTS: {

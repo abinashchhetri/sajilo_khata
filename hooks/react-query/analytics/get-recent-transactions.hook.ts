@@ -1,20 +1,21 @@
+"use client";
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth Types
+// useGetRecentTransactions
 // ─────────────────────────────────────────────────────────────────────────────
-// Interfaces scoped to the auth feature.
-// Mirrors the backend User entity — if the backend adds a field, update here.
+// Fetches the N most recent personal transactions for the dashboard.
+// Invalidated by every transaction/transfer mutation so dashboard stays live.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface IUser {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string | null;
-  role: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { fetchRecentTransactions } from "@/services/analytics/analytics.service";
+import { QUERY_KEYS } from "@/lib/constants/query-keys.constants";
 
-export interface IOnboardingStatus {
-  hasAccount: boolean;
-  accountCount: number;
-  isOnboardingComplete: boolean;
-}
+export const useGetRecentTransactions = (limit: number = 5) => {
+  const { data, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.ANALYTICS.RECENT],
+    queryFn: () => fetchRecentTransactions(limit),
+  });
+
+  return { transactions: data ?? [], isLoading };
+};

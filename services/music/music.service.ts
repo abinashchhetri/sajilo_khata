@@ -18,6 +18,9 @@ import type {
   ISearchMusicParams,
   IMusicHistoryParams,
   IDiscoverySearchResponse,
+  IQueuePeekResponse,
+  IQueueAdvanceResponse,
+  IQueueStateResponse,
 } from "@/types/music/music.types";
 
 // Increment play count and return a presigned stream URL for the track
@@ -53,6 +56,24 @@ export const getNextTrack = async (
 ): Promise<TApiResponse<IStreamResponse | null>> => {
   const { data } = await apiClient.get(`/music/next/${currentTrackId}`);
   return data;
+};
+
+// Peek at the next track in the queue (read-only, does not consume it)
+export const peekQueue = async (): Promise<IQueuePeekResponse> => {
+  const { data } = await apiClient.get("/music/queue/peek");
+  return data.data;
+};
+
+// Pop the next track from the queue and return its stream info
+export const advanceQueue = async (): Promise<IQueueAdvanceResponse> => {
+  const { data } = await apiClient.post("/music/queue/advance");
+  return data.data;
+};
+
+// Fetch full queue state (length + next track preview)
+export const fetchQueue = async (): Promise<IQueueStateResponse> => {
+  const { data } = await apiClient.get("/music/queue");
+  return data.data;
 };
 
 // Get AI-generated recommendations seeded from the given track

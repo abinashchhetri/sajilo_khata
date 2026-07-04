@@ -10,10 +10,8 @@
 //   plain async function, not a hook.
 // - volume is the only piece of state persisted to localStorage. Everything else
 //   resets on navigation/refresh intentionally (no ghost players across sessions).
-// - prepareNextFiredRef is an internal ref reset on each new track. Step 4's
-//   player component reads it to avoid double-firing prepare-next mid-song.
-// - advanceToNext reads nextTrack/nextStreamUrl via closure deps so it always
-//   sees the latest queued track without stale closure issues.
+// - advanceToNext is async and calls advanceQueue() service. A ref guards against
+//   concurrent calls (e.g. track-end races with user skip).
 // ─────────────────────────────────────────────────────────────────────────────
 
 "use client";
@@ -31,9 +29,22 @@ import toast from "react-hot-toast";
 import {
   playTrack as playTrackService,
   createAndPlayTrack,
+  advanceQueue,
 } from "@/services/music/music.service";
 import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
+import { ACCESS_TOKEN_KEY } from "@/lib/constants/auth-storage.constants";
 import type { IDiscoveryTrack, ITrack } from "@/types/music/music.types";
+
+// Appends the JWT as ?token= so the <audio> element can authenticate
+// even on Safari where cross-origin httpOnly cookies are blocked by ITP.
+const buildStreamUrl = (trackId: string): string => {
+  const base = `${process.env.NEXT_PUBLIC_API_URL}/music/stream/${trackId}`;
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem(ACCESS_TOKEN_KEY)
+      : null;
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base;
+};
 
 const VOLUME_KEY = "music_volume";
 
@@ -42,10 +53,9 @@ const VOLUME_KEY = "music_volume";
 export interface IMusicPlayerContext {
   currentTrack: ITrack | null;
   streamUrl: string | null;
-  nextTrack: ITrack | null;
-  nextStreamUrl: string | null;
   isPlaying: boolean;
   isLoading: boolean;
+  isAdvancing: boolean;
   volume: number;
   currentTime: number;
   duration: number;
@@ -53,8 +63,7 @@ export interface IMusicPlayerContext {
   playDiscoveryTrack: (track: IDiscoveryTrack) => Promise<void>;
   pauseTrack: () => void;
   resumeTrack: () => void;
-  setNextReady: (track: ITrack, streamUrl: string) => void;
-  advanceToNext: () => void;
+  advanceToNext: () => Promise<void>;
   setVolume: (v: number) => void;
   setIsLoading: (loading: boolean) => void;
   setPlaybackPosition: (t: number, d: number) => void;
@@ -71,17 +80,15 @@ export const MusicPlayerContext = createContext<IMusicPlayerContext | null>(
 const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentTrack, setCurrentTrack] = useState<ITrack | null>(null);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
-  const [nextTrack, setNextTrack] = useState<ITrack | null>(null);
-  const [nextStreamUrl, setNextStreamUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const [volume, setVolumeState] = useState(0.8);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // Guards against prepare-next firing more than once per track (e.g. on
-  // re-renders mid-song). Reset to false every time a new track starts.
-  const prepareNextFiredRef = useRef(false);
+  // Ref guard prevents concurrent advance calls (track-end race with manual skip)
+  const isAdvancingRef = useRef(false);
 
   // Restore persisted volume on mount
   useEffect(() => {
@@ -94,12 +101,9 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const playTrack = useCallback(async (track: ITrack) => {
     setIsLoading(true);
-    prepareNextFiredRef.current = false;
     try {
       const result = await playTrackService(track.id);
-      const url =
-        result.data.streamUrl ??
-        `${process.env.NEXT_PUBLIC_API_URL}/music/stream/${result.data.track.id}`;
+      const url = result.data.streamUrl ?? buildStreamUrl(result.data.track.id);
       setCurrentTrack(result.data.track);
       setStreamUrl(url);
       setIsPlaying(true);
@@ -113,7 +117,6 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const playDiscoveryTrack = useCallback(
     async (track: IDiscoveryTrack) => {
       setIsLoading(true);
-      prepareNextFiredRef.current = false;
       try {
         const result = await createAndPlayTrack(
           track.externalId,
@@ -121,13 +124,7 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
           track.artist,
           track.coverUrl,
         );
-        // Backend returns streamUrl=null when the track is not yet cached.
-        // In that case, stream live via the /music/stream/:id endpoint which
-        // authenticates with the httpOnly cookie (crossOrigin="use-credentials"
-        // on the <audio> element ensures the cookie is sent cross-origin).
-        const url =
-          result.streamUrl ??
-          `${process.env.NEXT_PUBLIC_API_URL}/music/stream/${result.track.id}`;
+        const url = result.streamUrl ?? buildStreamUrl(result.track.id);
         setCurrentTrack(result.track);
         setStreamUrl(url);
         setIsPlaying(true);
@@ -144,24 +141,24 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resumeTrack = useCallback(() => setIsPlaying(true), []);
 
-  const setNextReady = useCallback((track: ITrack, url: string) => {
-    setNextTrack(track);
-    setNextStreamUrl(url);
-  }, []);
-
-  // Advances to the pre-cached next track. Clears the next slot so the
-  // recommendation cycle can fill it with the next-next track.
-  const advanceToNext = useCallback(() => {
-    if (nextTrack && nextStreamUrl) {
-      setCurrentTrack(nextTrack);
-      setStreamUrl(nextStreamUrl);
+  const advanceToNext = useCallback(async () => {
+    if (isAdvancingRef.current) return;
+    isAdvancingRef.current = true;
+    setIsAdvancing(true);
+    try {
+      const result = await advanceQueue();
+      const url = result.streamUrl ?? buildStreamUrl(result.track.id);
+      setCurrentTrack(result.track);
+      setStreamUrl(url);
       setIsPlaying(true);
-      setNextTrack(null);
-      setNextStreamUrl(null);
-    } else {
+    } catch {
       setIsPlaying(false);
+      toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
+    } finally {
+      isAdvancingRef.current = false;
+      setIsAdvancing(false);
     }
-  }, [nextTrack, nextStreamUrl]);
+  }, []);
 
   const setVolume = useCallback((v: number) => {
     setVolumeState(v);
@@ -178,10 +175,9 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         currentTrack,
         streamUrl,
-        nextTrack,
-        nextStreamUrl,
         isPlaying,
         isLoading,
+        isAdvancing,
         volume,
         currentTime,
         duration,
@@ -189,7 +185,6 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
         playDiscoveryTrack,
         pauseTrack,
         resumeTrack,
-        setNextReady,
         advanceToNext,
         setVolume,
         setIsLoading,

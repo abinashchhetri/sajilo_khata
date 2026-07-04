@@ -35,6 +35,8 @@ import { useAuth } from "@/hooks/context/use-auth.hook";
 import { useGetAccounts } from "@/hooks/react-query/accounts/get-accounts.hook";
 import { useGetTransactions } from "@/hooks/react-query/transactions/get-transactions.hook";
 import { useGetMusicHistory } from "@/hooks/react-query/music/get-music-history.hook";
+import { useGetRecentTransactions } from "@/hooks/react-query/analytics/get-recent-transactions.hook";
+import { useGetAccountVoiceKeywords } from "@/hooks/react-query/accounts/get-account-voice-keywords.hook";
 import { parseVoiceTranscript } from "@/utils/voice-parser.utils";
 import { formatCurrency } from "@/utils/format.utils";
 import { ROUTES } from "@/lib/constants/routes.constants";
@@ -47,7 +49,6 @@ const DashboardPage = () => {
   const { user } = useAuth();
   const [pendingVoice, setPendingVoice] = useState<TParsedVoiceEntry | null>(null);
 
-  // Compute today's date client-side to avoid server/client hydration mismatch
   const today = format(new Date(), "yyyy-MM-dd");
 
   // Accounts — for total balance stat
@@ -58,26 +59,27 @@ const DashboardPage = () => {
     0,
   );
 
-  // Recently played — 3 tracks for dashboard widget
+  // Voice keyword data for account detection
+  const { accountKeywords } = useGetAccountVoiceKeywords();
+
+  // Music — 3 tracks for the music widget
   const { tracks: recentlyPlayed, isLoading: musicLoading } = useGetMusicHistory({ limit: 3 });
 
-  // Today's transactions — for spend stat and recent activity
-  const { transactions, isLoading: txLoading } = useGetTransactions({
-    startDate: today,
-    endDate: today,
-  });
+  // Today's transactions — for spend stat only
+  const { transactions: todayTransactions, isLoading: txLoading } =
+    useGetTransactions({ startDate: today, endDate: today });
 
-  // Recent (up to 5, most recent first — API returns newest first)
-  const recentTransactions = transactions.slice(0, 5);
+  // Recent activity — last 5 across all time (proper data source for dashboard)
+  const { transactions: recentTransactions, isLoading: recentLoading } =
+    useGetRecentTransactions(5);
 
-  // Today's spend = sum of today's expenses
-  const todaysSpend = transactions
+  const todaysSpend = todayTransactions
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.totalAmount, 0);
 
   // Voice handling
   const handleTranscriptReady = (rawTranscript: string) => {
-    const parsed = parseVoiceTranscript(rawTranscript);
+    const parsed = parseVoiceTranscript(rawTranscript, accountKeywords);
     setPendingVoice(parsed);
   };
 
@@ -141,6 +143,7 @@ const DashboardPage = () => {
         <ConfirmationCard
           parsed={pendingVoice}
           onClose={() => setPendingVoice(null)}
+          defaultAccountId={pendingVoice.detectedAccount?.accountId}
         />
       )}
 
@@ -219,7 +222,7 @@ const DashboardPage = () => {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-body-sm font-medium text-foreground">
-            Today&apos;s Activity
+            Recent Activity
           </p>
           <Link
             href={ROUTES.TRANSACTIONS}
@@ -229,15 +232,15 @@ const DashboardPage = () => {
           </Link>
         </div>
 
-        {txLoading ? (
+        {recentLoading ? (
           <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-20 w-full rounded-xl" />
             ))}
           </div>
         ) : recentTransactions.length === 0 ? (
           <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No transactions today — use the mic button or{" "}
+            No transactions yet — use the mic button or{" "}
             <Link
               href={ROUTES.TRANSACTIONS}
               className="underline underline-offset-2"

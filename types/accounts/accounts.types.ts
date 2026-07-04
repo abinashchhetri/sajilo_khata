@@ -16,6 +16,7 @@ export interface IAccount {
   currentBalance: number;
   isDefault: boolean;
   isArchived: boolean;
+  voiceKeywords?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -32,8 +33,17 @@ export interface IUpdateAccount {
   name?: string;
   isDefault?: boolean;
   isArchived?: boolean;
+  voiceKeywords?: string[];
 }
 
 export interface IFindAllAccountsParams {
   includeArchived?: boolean;
+}
+
+export interface IAccountVoiceKeyword {
+  id: string;
+  name: string;
+  type: TAccountType;
+  voiceKeywords: string[];
+  allMatchTerms: string[];
 }

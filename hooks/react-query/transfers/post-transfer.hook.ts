@@ -2,8 +2,11 @@
 // useHandleCreateTransfer
 // ─────────────────────────────────────────────────────────────────────────────
 // Creates a transfer between two accounts.
-// On success: invalidates TRANSFERS.ALL (list) and ACCOUNTS.ALL (both balances
-// changed) — analytics is not invalidated since transfers are excluded there.
+// On success: invalidates transfers, accounts (both balances changed), and
+// analytics keys so the dashboard net-worth and recent activity refresh.
+// NO onError — the Axios interceptor reads error.response.data.message and
+// toasts it directly, so the backend's "Insufficient balance" message surfaces
+// exactly as sent rather than being overwritten by a generic string.
 // ─────────────────────────────────────────────────────────────────────────────
 
 "use client";
@@ -22,6 +25,10 @@ export const useHandleCreateTransfer = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TRANSFERS.ALL] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ACCOUNTS.ALL] });
+      queryClient.invalidateQueries({ queryKey: ["analytics-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS.ACCOUNTS_VIEW] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS.NET_WORTH] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ANALYTICS.RECENT] });
       toast.success(TOAST_MESSAGES.TRANSFERS.CREATED);
     },
   });

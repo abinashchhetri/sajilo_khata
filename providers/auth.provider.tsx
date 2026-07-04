@@ -9,13 +9,17 @@
 "use client";
 
 import { createContext, useCallback, useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { useGetCurrentUser } from "@/hooks/react-query/auth/get-current-user.hook";
 import { logout as logoutService } from "@/services/auth/auth.service";
 import { ROUTES } from "@/lib/constants/routes.constants";
 import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
+import {
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+} from "@/lib/constants/auth-storage.constants";
 import type { IUser } from "@/types/auth/auth.types";
 
 // ─────── Types ───────────────────────────────────────────────────────────────
@@ -39,14 +43,19 @@ export const AuthContext = createContext<IAuthContext>({
 // ─────── Component ───────────────────────────────────────────────────────────
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, isLoading } = useGetCurrentUser();
 
   const logout = useCallback(async () => {
     await logoutService();
+    // Clear React Query cache and localStorage tokens so both cookie-based
+    // (Chrome) and header-based (Safari) auth state are fully wiped.
+    queryClient.clear();
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     toast.success(TOAST_MESSAGES.AUTH.LOGOUT_SUCCESS);
-    router.push(ROUTES.LOGIN);
-  }, [router]);
+    window.location.href = ROUTES.LOGIN;
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider
