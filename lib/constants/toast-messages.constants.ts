@@ -58,6 +58,16 @@ export const TOAST_MESSAGES = {
     UNAUTHORIZED: "You need to be logged in to do that",
   },
 
+  VOICE: {
+    MIC_DENIED: "Microphone access denied — enable it in browser settings.",
+    NO_SPEECH: "No speech detected. Hold longer and speak clearly.",
+    NETWORK_ERROR: "Network error during voice input. Check your connection.",
+    AUDIO_CAPTURE: "Microphone not found. Connect a mic and try again.",
+    NOT_SUPPORTED: "Voice input isn't supported in this browser. Try Chrome.",
+    GENERIC_ERROR: "Voice input failed. Please try again.",
+    NO_ITEMS: "No items detected — say each item followed by its amount.",
+  },
+
   MUSIC: {
     PLAY_ERROR: "Could not load track. Try again.",
     PREPARE_FAILED: "Next track is not ready yet.",
