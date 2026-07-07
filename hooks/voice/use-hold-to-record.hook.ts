@@ -119,10 +119,14 @@ export const useHoldToRecord = ({
     rec.onstart = () => {};
 
     rec.onerror = (event) => {
-      // "aborted" is fired when we intentionally stop a session early (e.g. rapid
-      // re-click). It is not a real error — swallow it silently.
+      // "aborted" is fired when we intentionally stop a session early — not a real error.
       if (event.error === "aborted") return;
       console.error("[Voice] error:", event.error, event.message);
+      // Reset so the mic button doesn't appear stuck in recording state after
+      // permission denial, network error, or any other real failure.
+      shouldRestartRef.current = false;
+      setIsRecording(false);
+      reset();
     };
 
     rec.onresult = (event) => {
