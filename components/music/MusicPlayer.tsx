@@ -97,7 +97,7 @@ const MusicPlayer = () => {
     <>
     <UpcomingQueue />
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center border-t border-zinc-800 bg-zinc-950 px-4"
+      className="fixed bottom-16 left-0 right-0 z-50 flex h-20 items-center border-t border-zinc-800 bg-zinc-950 px-4 md:bottom-0"
       style={{ boxShadow: "0 -8px 32px rgba(0,0,0,0.45)" }}
     >
       <audio
