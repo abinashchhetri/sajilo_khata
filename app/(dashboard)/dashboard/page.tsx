@@ -81,7 +81,15 @@ const DashboardPage = () => {
 
   // Voice handling
   const handleTranscriptReady = (rawTranscript: string) => {
+    if (!rawTranscript.trim()) {
+      toast.error(TOAST_MESSAGES.VOICE.NO_SPEECH, { duration: 3000 });
+      return;
+    }
     const parsed = parseVoiceTranscript(rawTranscript, accountKeywords);
+    if (parsed.lineItems.length === 0) {
+      toast.error(TOAST_MESSAGES.VOICE.NO_ITEMS, { duration: 4000 });
+      return;
+    }
     setPendingVoice(parsed);
   };
 
