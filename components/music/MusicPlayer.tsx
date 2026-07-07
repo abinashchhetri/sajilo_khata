@@ -55,8 +55,12 @@ const MusicPlayer = () => {
   const prepareNextFiredRef = useRef(false);
   // Ref mirrors isPlaying so the streamUrl effect can read the latest value
   // without needing isPlaying as a dependency (which would cause load() on pause).
+  // Update synchronously at render time (not in an effect) so that when the
+  // streamUrl effect fires in the same commit, isPlayingRef already reflects
+  // the current render's isPlaying. An effect-based sync would run *after*
+  // the streamUrl effect and leave the ref stale, preventing auto-play.
   const isPlayingRef = useRef(isPlaying);
-  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
+  isPlayingRef.current = isPlaying;
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);

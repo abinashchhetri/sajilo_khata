@@ -31,6 +31,8 @@ import {
   createAndPlayTrack,
   advanceQueue,
 } from "@/services/music/music.service";
+import { queryClient } from "@/providers/react-query.provider";
+import { QUERY_KEYS } from "@/lib/constants/query-keys.constants";
 import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
 import { ACCESS_TOKEN_KEY } from "@/lib/constants/auth-storage.constants";
 import type { IDiscoveryTrack, ITrack } from "@/types/music/music.types";
@@ -128,6 +130,10 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
         setCurrentTrack(result.track);
         setStreamUrl(url);
         setIsPlaying(true);
+        // Refresh Recently Played so the new track appears without a page reload
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MUSIC.HISTORY(),
+        });
       } catch {
         toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
       } finally {
