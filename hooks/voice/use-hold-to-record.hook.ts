@@ -119,6 +119,9 @@ export const useHoldToRecord = ({
     rec.onstart = () => {};
 
     rec.onerror = (event) => {
+      // "aborted" is fired when we intentionally stop a session early (e.g. rapid
+      // re-click). It is not a real error — swallow it silently.
+      if (event.error === "aborted") return;
       console.error("[Voice] error:", event.error, event.message);
     };
 
@@ -165,6 +168,15 @@ export const useHoldToRecord = ({
 
   const startRecording = useCallback(() => {
     if (!getSpeechRecognitionAPI()) return;
+
+    // Detach onend from any in-flight session before replacing it.
+    // Without this, the old session's onend fires after the new one starts,
+    // sees shouldRestartRef=true, and launches a third instance → "aborted".
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      try { recognitionRef.current.stop(); } catch { /* already stopping */ }
+      recognitionRef.current = null;
+    }
 
     setTranscript("");
     transcriptRef.current = "";
