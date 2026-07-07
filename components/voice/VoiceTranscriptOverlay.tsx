@@ -11,7 +11,23 @@ interface Props {
 }
 
 const VoiceTranscriptOverlay = ({ transcript }: Props) => (
-  <div className="fixed bottom-24 right-6 z-40 w-72 rounded-2xl border bg-card p-4 shadow-xl">
+  <div className="fixed bottom-24 right-6 z-50 w-72 rounded-2xl border bg-card p-4 shadow-xl">
+    {/* Format hint */}
+    <p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      Say in this order:
+    </p>
+    <p className="mb-3 text-[11px] text-muted-foreground">
+      <span className="font-medium text-foreground">item</span>
+      {" → "}
+      <span className="font-medium text-foreground">amount</span>
+      {", "}
+      <span className="font-medium text-foreground">item</span>
+      {" → "}
+      <span className="font-medium text-foreground">amount</span>
+      <br />
+      <span className="italic">e.g. &ldquo;dal 100 milk 30 bus 15&rdquo;</span>
+    </p>
+
     {/* Recording indicator */}
     <div className="mb-2 flex items-center gap-2">
       <span className="h-2 w-2 animate-pulse rounded-full bg-destructive" />

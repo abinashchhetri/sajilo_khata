@@ -11,8 +11,9 @@
 
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { HardDrive, Music, Play, Plus } from "lucide-react";
+import { HardDrive, Loader2, Music, Play, Plus } from "lucide-react";
 
 import { useMusicPlayer } from "@/hooks/context/use-music-player.hook";
 import { formatDuration, truncate } from "@/utils/format.utils";
@@ -29,12 +30,18 @@ interface Props {
 
 const DiscoveryTrackRow = ({ track, onAddToPlaylist }: Props) => {
   const { playTrack, playDiscoveryTrack } = useMusicPlayer();
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     if (track.id && track.isCached) {
       playTrack(track as unknown as ITrack);
     } else {
-      playDiscoveryTrack(track);
+      setIsDownloading(true);
+      try {
+        await playDiscoveryTrack(track);
+      } finally {
+        setIsDownloading(false);
+      }
     }
   };
 
@@ -93,10 +100,15 @@ const DiscoveryTrackRow = ({ track, onAddToPlaylist }: Props) => {
       {/* Play — no stopPropagation; parent wrapper in MusicSearchBar closes dropdown */}
       <button
         onClick={handlePlay}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-zinc-950 opacity-0 shadow transition-all hover:scale-105 group-hover:opacity-100"
-        title={track.isCached ? "Play" : "Download & play"}
+        disabled={isDownloading}
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-zinc-950 shadow transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70 ${isDownloading ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+        title={isDownloading ? "Downloading…" : track.isCached ? "Play" : "Download & play"}
       >
-        <Play size={12} fill="currentColor" className="translate-x-px" />
+        {isDownloading ? (
+          <Loader2 size={12} className="animate-spin" />
+        ) : (
+          <Play size={12} fill="currentColor" className="translate-x-px" />
+        )}
       </button>
     </div>
   );

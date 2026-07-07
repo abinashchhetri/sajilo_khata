@@ -138,13 +138,15 @@ const DashboardPage = () => {
         </Card>
       </div>
 
-      {/* ── Voice ConfirmationCard (shown after releasing mic) ── */}
+      {/* ── Voice ConfirmationCard — fixed overlay above the mic button ── */}
       {pendingVoice && (
-        <ConfirmationCard
-          parsed={pendingVoice}
-          onClose={() => setPendingVoice(null)}
-          defaultAccountId={pendingVoice.detectedAccount?.accountId}
-        />
+        <div className="fixed bottom-24 left-4 right-4 z-50 sm:left-auto sm:right-6 sm:w-96">
+          <ConfirmationCard
+            parsed={pendingVoice}
+            onClose={() => setPendingVoice(null)}
+            defaultAccountId={pendingVoice.detectedAccount?.accountId}
+          />
+        </div>
       )}
 
       {/* ── Quick links ── */}
