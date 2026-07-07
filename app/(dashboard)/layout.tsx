@@ -84,7 +84,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex flex-1 flex-col overflow-hidden">
           <Navbar />
           {/* pb-24 reserves space for the fixed player bar at the bottom */}
-          <main className="flex-1 overflow-y-auto p-4 pb-36 md:p-6 md:pb-24">
+          <main className="flex-1 overflow-y-auto p-4 pb-28 md:p-6 md:pb-24">
             {children}
           </main>
         </div>
