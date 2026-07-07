@@ -138,14 +138,21 @@ const DashboardPage = () => {
         </Card>
       </div>
 
-      {/* ── Voice ConfirmationCard — fixed overlay above the mic button ── */}
+      {/* ── Voice ConfirmationCard — centered modal overlay ── */}
       {pendingVoice && (
-        <div className="fixed bottom-24 left-4 right-4 z-50 sm:left-auto sm:right-6 sm:w-96">
-          <ConfirmationCard
-            parsed={pendingVoice}
-            onClose={() => setPendingVoice(null)}
-            defaultAccountId={pendingVoice.detectedAccount?.accountId}
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+          {/* Backdrop — tap to discard */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setPendingVoice(null)}
           />
+          <div className="relative w-full max-w-sm">
+            <ConfirmationCard
+              parsed={pendingVoice}
+              onClose={() => setPendingVoice(null)}
+              defaultAccountId={pendingVoice.detectedAccount?.accountId}
+            />
+          </div>
         </div>
       )}
 

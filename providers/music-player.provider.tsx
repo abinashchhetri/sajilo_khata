@@ -119,6 +119,9 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const playDiscoveryTrack = useCallback(
     async (track: IDiscoveryTrack) => {
       setIsLoading(true);
+      // Show a persistent toast so the user knows why nothing is playing yet.
+      // The backend now blocks until the file is on S3 (5–30 s for new tracks).
+      const toastId = toast.loading(`Downloading "${track.title.slice(0, 30)}"…`);
       try {
         const result = await createAndPlayTrack(
           track.externalId,
@@ -130,12 +133,13 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
         setCurrentTrack(result.track);
         setStreamUrl(url);
         setIsPlaying(true);
+        toast.success("Now playing!", { id: toastId, duration: 2000 });
         // Refresh Recently Played so the new track appears without a page reload
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.MUSIC.HISTORY(),
         });
       } catch {
-        toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
+        toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR, { id: toastId });
       } finally {
         setIsLoading(false);
       }

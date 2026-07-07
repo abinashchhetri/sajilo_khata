@@ -11,7 +11,7 @@ interface Props {
 }
 
 const VoiceTranscriptOverlay = ({ transcript }: Props) => (
-  <div className="fixed bottom-24 right-6 z-50 w-72 rounded-2xl border bg-card p-4 shadow-xl">
+  <div className="fixed bottom-40 left-4 right-4 z-50 rounded-2xl border bg-card p-4 shadow-xl sm:left-auto sm:right-6 sm:w-72 md:bottom-28">
     {/* Format hint */}
     <p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
       Say in this order:
