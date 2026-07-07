@@ -32,7 +32,7 @@ const UpcomingQueue = () => {
     <>
       {/* ── Collapsible panel ─────────────────────────────────────────────── */}
       {isOpen && (
-        <div className="fixed bottom-20 right-4 z-40 w-72 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 shadow-xl">
+        <div className="fixed bottom-36 right-4 z-40 md:bottom-20 w-72 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
             <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ const UpcomingQueue = () => {
 
       {/* ── Toggle button (only when panel is closed) ─────────────────────── */}
       {!isOpen && (
-        <div className="fixed bottom-20 right-4 z-40">
+        <div className="fixed bottom-36 right-4 z-40 md:bottom-20">
           <Button
             variant="ghost"
             size="sm"
