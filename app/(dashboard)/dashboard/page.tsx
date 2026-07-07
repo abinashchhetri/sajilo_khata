@@ -13,6 +13,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import Link from "next/link";
 import { format } from "date-fns";
 import {
@@ -39,6 +40,7 @@ import { useGetRecentTransactions } from "@/hooks/react-query/analytics/get-rece
 import { useGetAccountVoiceKeywords } from "@/hooks/react-query/accounts/get-account-voice-keywords.hook";
 import { parseVoiceTranscript } from "@/utils/voice-parser.utils";
 import { formatCurrency } from "@/utils/format.utils";
+import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
 import { ROUTES } from "@/lib/constants/routes.constants";
 import type { IAccount } from "@/types/accounts/accounts.types";
 import type { TParsedVoiceEntry } from "@/types/transactions/transactions.types";
@@ -79,7 +81,15 @@ const DashboardPage = () => {
 
   // Voice handling
   const handleTranscriptReady = (rawTranscript: string) => {
+    if (!rawTranscript.trim()) {
+      toast.error(TOAST_MESSAGES.VOICE.NO_SPEECH, { duration: 3000 });
+      return;
+    }
     const parsed = parseVoiceTranscript(rawTranscript, accountKeywords);
+    if (parsed.lineItems.length === 0) {
+      toast.error(TOAST_MESSAGES.VOICE.NO_ITEMS, { duration: 4000 });
+      return;
+    }
     setPendingVoice(parsed);
   };
 

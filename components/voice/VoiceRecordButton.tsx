@@ -40,7 +40,7 @@ const VoiceRecordButton = ({ onTranscriptReady }: Props) => {
           isRecording ? "Recording — release to confirm" : "Hold to record voice entry"
         }
         className={cn(
-          "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center",
+          "fixed bottom-20 right-6 z-50 flex h-14 w-14 items-center justify-center md:bottom-6",
           "rounded-full shadow-lg transition-all duration-150 select-none",
           "bg-primary text-primary-foreground",
           isRecording &&

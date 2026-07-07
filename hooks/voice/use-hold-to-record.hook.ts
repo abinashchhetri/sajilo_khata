@@ -23,6 +23,9 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import toast from "react-hot-toast";
+
+import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
 
 interface Options {
   onTranscriptReady: (transcript: string) => void;
@@ -119,14 +122,23 @@ export const useHoldToRecord = ({
     rec.onstart = () => {};
 
     rec.onerror = (event) => {
-      // "aborted" is fired when we intentionally stop a session early — not a real error.
+      // "aborted" fires when we intentionally stop a session early — not a real error.
       if (event.error === "aborted") return;
-      console.error("[Voice] error:", event.error, event.message);
-      // Reset so the mic button doesn't appear stuck in recording state after
-      // permission denial, network error, or any other real failure.
+
+      const V = TOAST_MESSAGES.VOICE;
+      const msg: Record<string, string> = {
+        "not-allowed": V.MIC_DENIED,
+        "service-not-allowed": V.NOT_SUPPORTED,
+        "no-speech": V.NO_SPEECH,
+        network: V.NETWORK_ERROR,
+        "audio-capture": V.AUDIO_CAPTURE,
+      };
+      toast.error(msg[event.error] ?? V.GENERIC_ERROR, { duration: 4000 });
+
+      // Stop auto-restart but do NOT call reset() here. onend fires immediately
+      // after onerror and reads transcriptRef.current to fire onTranscriptReady.
       shouldRestartRef.current = false;
       setIsRecording(false);
-      reset();
     };
 
     rec.onresult = (event) => {
