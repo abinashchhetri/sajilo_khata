@@ -64,9 +64,15 @@ export interface IFindAllTransactionsParams extends IDateRangeFilter {
   isPersonal?: boolean;
 }
 
-// Shape the voice parser produces before the ConfirmationCard pre-fills a form
+// Shape the voice parser produces before the ConfirmationCard pre-fills a form.
+// All existing fields are preserved — new fields are optional so every caller
+// that only reads lineItems / detectedAccount / rawTranscript still compiles.
 export interface TParsedVoiceEntry {
   lineItems: { name: string; amount: number }[];
   detectedAccount: { accountId: string; accountName: string } | null;
   rawTranscript: string;
+  detectedCurrency?: string | null;
+  detectedType?: "expense" | "income" | "transfer";
+  detectedDate?: string | null;
+  detectedMerchant?: string | null;
 }
