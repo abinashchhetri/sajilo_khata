@@ -190,7 +190,7 @@ const DashboardPage = () => {
             sub: "Spending insights",
           },
           {
-            href: ROUTES.WORKOUTS,
+            href: ROUTES.HEALTH.WORKOUT,
             Icon: Dumbbell,
             label: "Fitness",
             sub: "Log workouts",
