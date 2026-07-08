@@ -1,4 +1,4 @@
-// Fitness page — workouts. Tabs: Today (log in <60s), History, Progress, Plan.
+// Fitness page — simple, clean, intuitive. Import plan → log one exercise at a time.
 
 "use client";
 
@@ -11,18 +11,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/shared/EmptyState";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { CsvImportDialog } from "@/components/shared/CsvImportDialog";
-import { LogSessionForm } from "@/components/workouts/LogSessionForm";
-import { SessionCard } from "@/components/workouts/SessionCard";
+import { ExerciseLogTable } from "@/components/workouts/ExerciseLogTable";
 import { SessionsList } from "@/components/workouts/SessionsList";
 import { ProgressChart } from "@/components/workouts/ProgressChart";
 import { ExercisePicker } from "@/components/workouts/ExercisePicker";
 import { WorkoutPlanView } from "@/components/workouts/WorkoutPlanView";
 import { useGetWorkoutToday } from "@/hooks/react-query/workouts/get-workout-today.hook";
-import { useHandleCreateWorkoutSession } from "@/hooks/react-query/workouts/post-workout-session.hook";
 import { useHandleImportWorkoutPlan } from "@/hooks/react-query/workouts/import-workout-plan.hook";
 import { useHandleClearWorkoutPlan } from "@/hooks/react-query/workouts/clear-workout-plan.hook";
 import { useGetExerciseProgress } from "@/hooks/react-query/workouts/get-exercise-progress.hook";
-import type { ICreateSession } from "@/types/fitness/workouts.types";
 
 const WORKOUT_CSV_FORMAT = "Columns: day, exercise, sets, reps, weight, notes";
 const WORKOUT_CSV_SAMPLE = `day,exercise,sets,reps,weight,notes
@@ -34,80 +31,38 @@ Friday,Lat Pulldown,3,10,110,`;
 
 const EMPTY_SUMMARY = { inserted: 0, daysCovered: 0, skipped: 0, warnings: [] };
 
-// Tab content wrapper with clear heading
-function TabSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-3">
-      <div>
-        <h2 className="text-heading-3 text-foreground">{title}</h2>
-        {description && (
-          <p className="mt-0.5 text-body-sm text-ink-muted">{description}</p>
-        )}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 export default function WorkoutsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState("");
 
   const { today, isLoading } = useGetWorkoutToday();
-  const { handleCreate, isPending: isCreating } =
-    useHandleCreateWorkoutSession();
   const { handleImport, isPending: isImporting } = useHandleImportWorkoutPlan();
   const { handleClear, isPending: isClearing } = useHandleClearWorkoutPlan();
   const { progress, isLoading: isProgressLoading } =
     useGetExerciseProgress(selectedExercise);
 
-  const handleSessionSubmit = async (session: ICreateSession) => {
-    await handleCreate(session);
-  };
-
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-heading-3 text-foreground">Fitness</h1>
-            <p className="text-body-sm text-ink-muted">
-              Track your workouts, log sessions, and watch your progress grow.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setImportOpen(true)}
-          >
-            <Upload size={15} />
-            Import plan
-          </Button>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-heading-3 text-foreground">Fitness</h1>
+          <p className="text-body-sm text-ink-muted">
+            Log workouts, track progress, build strength.
+          </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setImportOpen(true)}
+        >
+          <Upload size={15} />
+          Import plan
+        </Button>
       </div>
 
       <Tabs defaultValue="today" className="w-full">
-        {/* Tab descriptions */}
-        <div className="mb-3 grid grid-cols-4 gap-2 rounded-lg border border-hairline bg-canvas-soft p-2">
-          <div className="text-center">
-            <div className="text-body-sm font-medium text-foreground">Today</div>
-            <p className="text-caption text-ink-faint">Log workouts fast</p>
-          </div>
-          <div className="text-center">
-            <div className="text-body-sm font-medium text-foreground">History</div>
-            <p className="text-caption text-ink-faint">All sessions</p>
-          </div>
-          <div className="text-center">
-            <div className="text-body-sm font-medium text-foreground">Progress</div>
-            <p className="text-caption text-ink-faint">Charts & stats</p>
-          </div>
-          <div className="text-center">
-            <div className="text-body-sm font-medium text-foreground">Plan</div>
-            <p className="text-caption text-ink-faint">Weekly routine</p>
-          </div>
-        </div>
         <TabsList className="grid h-10 w-full grid-cols-4 gap-1 bg-canvas">
           <TabsTrigger value="today" className="gap-1.5">
             <Dumbbell size={15} />
@@ -127,108 +82,80 @@ export default function WorkoutsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Today — log workouts fast */}
+        {/* Today */}
         <TabsContent value="today" className="pt-4">
-          <TabSection
-            title="Log a workout"
-            description={today ? `${today.dayName} — ${today.plan.length} exercises planned` : ""}
-          >
-            {isLoading ? (
-              <Skeleton className="h-96 w-full rounded-lg" />
-            ) : today?.loggedSession ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-body-sm font-medium text-accent-green">
-                  <CheckCircle2 size={16} />
-                  You&apos;ve logged a workout for today
-                </div>
-                <SessionCard session={today.loggedSession} highlight />
-              </div>
-            ) : today?.plan.length ? (
-              <Card>
-                <CardContent className="p-5 sm:p-6">
-                  <LogSessionForm
-                    plan={today.plan}
-                    onSubmit={handleSessionSubmit}
-                    isLoading={isCreating}
-                  />
-                </CardContent>
-              </Card>
-            ) : (
-              <EmptyState
-                icon={<Dumbbell size={22} strokeWidth={1.5} />}
-                message={`Nothing planned for ${today?.dayName ?? "today"}`}
-                description="Import your weekly plan to start logging"
-                ctaLabel="Import plan"
-                onCta={() => setImportOpen(true)}
-              />
-            )}
-          </TabSection>
+          {isLoading ? (
+            <Skeleton className="h-96 w-full rounded-lg" />
+          ) : today?.plan.length ? (
+            <ExerciseLogTable plan={today.plan} dayName={today.dayName} />
+          ) : (
+            <EmptyState
+              icon={<Dumbbell size={22} strokeWidth={1.5} />}
+              message="No workout plan yet"
+              description="Import a CSV file to create your weekly workout routine"
+              ctaLabel="Import plan"
+              onCta={() => setImportOpen(true)}
+            />
+          )}
         </TabsContent>
 
-        {/* History — all sessions */}
+        {/* History */}
         <TabsContent value="history" className="pt-4">
-          <TabSection
-            title="Workout history"
-            description="All your logged sessions in reverse chronological order"
-          >
-            <SessionsList />
-          </TabSection>
+          <SessionsList />
         </TabsContent>
 
-        {/* Progress — charts & stats */}
-        <TabsContent value="progress" className="space-y-4 pt-4">
-          <TabSection
-            title="Progress tracking"
-            description="Pick an exercise to see your strength curve"
-          >
-            <div className="space-y-4">
-              <ExercisePicker
-                value={selectedExercise}
-                onChange={setSelectedExercise}
-              />
-              {!selectedExercise ? (
-                <EmptyState
-                  icon={<LineChart size={22} strokeWidth={1.5} />}
-                  message="Pick an exercise"
-                  description="See how your lifts trend over time"
-                />
-              ) : isProgressLoading ? (
-                <Skeleton className="h-80 w-full rounded-lg" />
-              ) : progress?.points.length ? (
-                <ProgressChart progress={progress} />
-              ) : (
-                <EmptyState
-                  icon={<LineChart size={22} strokeWidth={1.5} />}
-                  message="No data yet"
-                  description="Log this exercise to see progress"
-                />
-              )}
-            </div>
-          </TabSection>
+        {/* Progress */}
+        <TabsContent value="progress" className="space-y-3 pt-4">
+          <div>
+            <h2 className="text-heading-3 text-foreground">Progress</h2>
+            <p className="mt-0.5 text-body-sm text-ink-muted">
+              Pick an exercise to see your strength trends
+            </p>
+          </div>
+          <ExercisePicker
+            value={selectedExercise}
+            onChange={setSelectedExercise}
+          />
+          {!selectedExercise ? (
+            <EmptyState
+              icon={<LineChart size={22} strokeWidth={1.5} />}
+              message="Pick an exercise"
+              description="See how your lifts trend over time"
+            />
+          ) : isProgressLoading ? (
+            <Skeleton className="h-80 w-full rounded-lg" />
+          ) : progress?.points.length ? (
+            <ProgressChart progress={progress} />
+          ) : (
+            <EmptyState
+              icon={<LineChart size={22} strokeWidth={1.5} />}
+              message="No data yet"
+              description="Log this exercise to see progress"
+            />
+          )}
         </TabsContent>
 
-        {/* Plan — weekly routine */}
-        <TabsContent value="plan" className="pt-4">
-          <TabSection
-            title="Weekly plan"
-            description="Your programmed exercises by day"
-          >
-            <div className="space-y-4">
-              <WorkoutPlanView onImport={() => setImportOpen(true)} />
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-ink-faint hover:text-destructive"
-                  onClick={() => setClearConfirm(true)}
-                  disabled={isClearing}
-                >
-                  <Trash2 size={14} />
-                  Clear plan
-                </Button>
-              </div>
-            </div>
-          </TabSection>
+        {/* Plan */}
+        <TabsContent value="plan" className="space-y-3 pt-4">
+          <div>
+            <h2 className="text-heading-3 text-foreground">Weekly plan</h2>
+            <p className="mt-0.5 text-body-sm text-ink-muted">
+              Your programmed exercises for each day
+            </p>
+          </div>
+          <WorkoutPlanView onImport={() => setImportOpen(true)} />
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-ink-faint hover:text-destructive"
+              onClick={() => setClearConfirm(true)}
+              disabled={isClearing}
+            >
+              <Trash2 size={14} />
+              Clear plan
+            </Button>
+          </div>
         </TabsContent>
       </Tabs>
 
