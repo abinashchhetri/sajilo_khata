@@ -124,12 +124,12 @@ const WorkoutPlanImport = ({ open, onOpenChange }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="flex max-h-[90dvh] w-[95vw] flex-col overflow-hidden rounded-xl sm:w-full sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Import Workout Plan</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 space-y-4 overflow-y-auto pr-0.5">
           {/* Plan name */}
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">
@@ -278,14 +278,19 @@ const WorkoutPlanImport = ({ open, onOpenChange }: Props) => {
           )}
 
           {/* Actions */}
-          <div className="flex justify-end gap-2 pt-1">
-            <Button variant="ghost" onClick={handleClose} disabled={isPending}>
+          <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              disabled={isPending}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={!file || !planName.trim() || isPending || errors.length > 0}
-              className="min-w-28"
+              className="w-full sm:w-auto sm:min-w-28"
             >
               {isPending ? "Importing…" : "Confirm Import"}
             </Button>
