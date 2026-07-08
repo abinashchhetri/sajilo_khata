@@ -83,12 +83,13 @@ export const TOAST_MESSAGES = {
     MUST_BE_CACHED: "Track must finish loading before adding to a playlist",
   },
 
-  WORKOUTS: {
+  WORKOUT: {
     PLAN_IMPORTED: "Workout plan imported",
-    PLAN_CLEARED: "Workout plan cleared",
-    SESSION_LOGGED: "Workout logged",
-    SESSION_UPDATED: "Workout updated",
-    SESSION_DELETED: "Workout deleted",
+    PLAN_IMPORT_ERROR: "Could not import plan — see errors below.",
+    SESSION_STARTED: "Workout started",
+    SESSION_COMPLETED: "Workout completed!",
+    SET_LOGGED: "Set saved",
+    SET_ADDED: "Set added",
   },
 
   MEALS: {
