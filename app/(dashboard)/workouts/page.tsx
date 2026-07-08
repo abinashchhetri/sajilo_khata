@@ -34,6 +34,21 @@ Friday,Lat Pulldown,3,10,110,`;
 
 const EMPTY_SUMMARY = { inserted: 0, daysCovered: 0, skipped: 0, warnings: [] };
 
+// Tab content wrapper with clear heading
+function TabSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-4 pt-2">
+      <div>
+        <h2 className="text-heading-3 text-foreground">{title}</h2>
+        {description && (
+          <p className="mt-1 text-body-sm text-ink-muted">{description}</p>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export default function WorkoutsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
@@ -54,109 +69,167 @@ export default function WorkoutsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-heading-3 text-foreground">Fitness</h1>
-          <p className="text-body-sm text-ink-muted">
-            {today ? today.dayName : "Log workouts and track progress"}
-          </p>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-heading-3 text-foreground">Fitness</h1>
+            <p className="text-body-sm text-ink-muted">
+              Track your workouts, log sessions, and watch your progress grow.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setImportOpen(true)}
+          >
+            <Upload size={15} />
+            Import plan
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setImportOpen(true)}
-        >
-          <Upload size={15} />
-          Import plan
-        </Button>
+
+        {/* Tab descriptions */}
+        <div className="grid grid-cols-4 gap-2 rounded-lg border border-hairline bg-canvas-soft p-3">
+          <div className="text-center">
+            <div className="text-body-sm font-medium text-foreground">Today</div>
+            <p className="text-caption text-ink-faint">Log workouts fast</p>
+          </div>
+          <div className="text-center">
+            <div className="text-body-sm font-medium text-foreground">History</div>
+            <p className="text-caption text-ink-faint">All sessions</p>
+          </div>
+          <div className="text-center">
+            <div className="text-body-sm font-medium text-foreground">Progress</div>
+            <p className="text-caption text-ink-faint">Charts & stats</p>
+          </div>
+          <div className="text-center">
+            <div className="text-body-sm font-medium text-foreground">Plan</div>
+            <p className="text-caption text-ink-faint">Weekly routine</p>
+          </div>
+        </div>
       </div>
 
       <Tabs defaultValue="today" className="w-full">
-        <TabsList className="grid h-9 w-full grid-cols-4">
-          <TabsTrigger value="today">Today</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
-          <TabsTrigger value="plan">Plan</TabsTrigger>
+        <TabsList className="grid h-10 w-full grid-cols-4 gap-1 bg-canvas">
+          <TabsTrigger value="today" className="gap-1.5">
+            <Dumbbell size={15} />
+            <span className="hidden sm:inline">Today</span>
+          </TabsTrigger>
+          <TabsTrigger value="history" className="gap-1.5">
+            <CheckCircle2 size={15} />
+            <span className="hidden sm:inline">History</span>
+          </TabsTrigger>
+          <TabsTrigger value="progress" className="gap-1.5">
+            <LineChart size={15} />
+            <span className="hidden sm:inline">Progress</span>
+          </TabsTrigger>
+          <TabsTrigger value="plan" className="gap-1.5">
+            <Upload size={15} />
+            <span className="hidden sm:inline">Plan</span>
+          </TabsTrigger>
         </TabsList>
 
-        {/* Today */}
+        {/* Today — log workouts fast */}
         <TabsContent value="today" className="pt-4">
-          {isLoading ? (
-            <Skeleton className="h-96 w-full rounded-lg" />
-          ) : today?.loggedSession ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-body-sm font-medium text-accent-green">
-                <CheckCircle2 size={16} />
-                Logged for today
+          <TabSection
+            title="Log a workout"
+            description={today ? `${today.dayName} — ${today.plan.length} exercises planned` : ""}
+          >
+            {isLoading ? (
+              <Skeleton className="h-96 w-full rounded-lg" />
+            ) : today?.loggedSession ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-body-sm font-medium text-accent-green">
+                  <CheckCircle2 size={16} />
+                  You&apos;ve logged a workout for today
+                </div>
+                <SessionCard session={today.loggedSession} highlight />
               </div>
-              <SessionCard session={today.loggedSession} highlight />
-            </div>
-          ) : today?.plan.length ? (
-            <Card>
-              <CardContent className="p-4 sm:p-5">
-                <LogSessionForm
-                  plan={today.plan}
-                  onSubmit={handleSessionSubmit}
-                  isLoading={isCreating}
-                />
-              </CardContent>
-            </Card>
-          ) : (
-            <EmptyState
-              icon={<Dumbbell size={22} strokeWidth={1.5} />}
-              message={`Nothing planned for ${today?.dayName ?? "today"}`}
-              description="Import your weekly plan to start logging"
-              ctaLabel="Import plan"
-              onCta={() => setImportOpen(true)}
-            />
-          )}
+            ) : today?.plan.length ? (
+              <Card>
+                <CardContent className="p-5 sm:p-6">
+                  <LogSessionForm
+                    plan={today.plan}
+                    onSubmit={handleSessionSubmit}
+                    isLoading={isCreating}
+                  />
+                </CardContent>
+              </Card>
+            ) : (
+              <EmptyState
+                icon={<Dumbbell size={22} strokeWidth={1.5} />}
+                message={`Nothing planned for ${today?.dayName ?? "today"}`}
+                description="Import your weekly plan to start logging"
+                ctaLabel="Import plan"
+                onCta={() => setImportOpen(true)}
+              />
+            )}
+          </TabSection>
         </TabsContent>
 
-        {/* History */}
+        {/* History — all sessions */}
         <TabsContent value="history" className="pt-4">
-          <SessionsList />
+          <TabSection
+            title="Workout history"
+            description="All your logged sessions in reverse chronological order"
+          >
+            <SessionsList />
+          </TabSection>
         </TabsContent>
 
-        {/* Progress */}
+        {/* Progress — charts & stats */}
         <TabsContent value="progress" className="space-y-4 pt-4">
-          <ExercisePicker
-            value={selectedExercise}
-            onChange={setSelectedExercise}
-          />
-          {!selectedExercise ? (
-            <EmptyState
-              icon={<LineChart size={22} strokeWidth={1.5} />}
-              message="Pick an exercise"
-              description="See how your lifts trend over time"
-            />
-          ) : isProgressLoading ? (
-            <Skeleton className="h-80 w-full rounded-lg" />
-          ) : progress?.points.length ? (
-            <ProgressChart progress={progress} />
-          ) : (
-            <EmptyState
-              icon={<LineChart size={22} strokeWidth={1.5} />}
-              message="No data yet"
-              description="Log this exercise to see progress"
-            />
-          )}
+          <TabSection
+            title="Progress tracking"
+            description="Pick an exercise to see your strength curve"
+          >
+            <div className="space-y-4">
+              <ExercisePicker
+                value={selectedExercise}
+                onChange={setSelectedExercise}
+              />
+              {!selectedExercise ? (
+                <EmptyState
+                  icon={<LineChart size={22} strokeWidth={1.5} />}
+                  message="Pick an exercise"
+                  description="See how your lifts trend over time"
+                />
+              ) : isProgressLoading ? (
+                <Skeleton className="h-80 w-full rounded-lg" />
+              ) : progress?.points.length ? (
+                <ProgressChart progress={progress} />
+              ) : (
+                <EmptyState
+                  icon={<LineChart size={22} strokeWidth={1.5} />}
+                  message="No data yet"
+                  description="Log this exercise to see progress"
+                />
+              )}
+            </div>
+          </TabSection>
         </TabsContent>
 
-        {/* Plan */}
-        <TabsContent value="plan" className="space-y-3 pt-4">
-          <WorkoutPlanView onImport={() => setImportOpen(true)} />
-          <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-ink-faint hover:text-destructive"
-              onClick={() => setClearConfirm(true)}
-              disabled={isClearing}
-            >
-              <Trash2 size={14} />
-              Clear plan
-            </Button>
-          </div>
+        {/* Plan — weekly routine */}
+        <TabsContent value="plan" className="pt-4">
+          <TabSection
+            title="Weekly plan"
+            description="Your programmed exercises by day"
+          >
+            <div className="space-y-4">
+              <WorkoutPlanView onImport={() => setImportOpen(true)} />
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-ink-faint hover:text-destructive"
+                  onClick={() => setClearConfirm(true)}
+                  disabled={isClearing}
+                >
+                  <Trash2 size={14} />
+                  Clear plan
+                </Button>
+              </div>
+            </div>
+          </TabSection>
         </TabsContent>
       </Tabs>
 
