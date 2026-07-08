@@ -82,4 +82,24 @@ export const TOAST_MESSAGES = {
     TRACK_REMOVED: "Track removed from playlist",
     MUST_BE_CACHED: "Track must finish loading before adding to a playlist",
   },
+
+  WORKOUTS: {
+    PLAN_IMPORTED: "Workout plan imported",
+    PLAN_CLEARED: "Workout plan cleared",
+    SESSION_LOGGED: "Workout logged",
+    SESSION_UPDATED: "Workout updated",
+    SESSION_DELETED: "Workout deleted",
+  },
+
+  MEALS: {
+    PLAN_IMPORTED: "Meal plan imported",
+    PLAN_CLEARED: "Meal plan cleared",
+    LOGGED: "Meal logged",
+    UPDATED: "Meal updated",
+    DELETED: "Meal deleted",
+    PREP_CREATED: "Meal prep added",
+    PREP_UPDATED: "Meal prep updated",
+    PREP_DELETED: "Meal prep removed",
+    PORTION_CONSUMED: "Portion logged",
+  },
 } as const;

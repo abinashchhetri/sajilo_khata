@@ -71,4 +71,20 @@ export const QUERY_KEYS = {
     ALL: "all-playlists",
     SINGLE: (id: string) => ["playlist", id] as const,
   },
+
+  WORKOUTS: {
+    TODAY: "workouts-today",
+    PLAN: "workouts-plan",
+    EXERCISES: "workouts-exercises",
+    SESSIONS: (filters?: object) => ["workout-sessions", filters] as const,
+    SESSION: (id: string) => ["workout-session", id] as const,
+    PROGRESS: (exercise: string) => ["workout-progress", exercise] as const,
+  },
+
+  MEALS: {
+    TODAY: "meals-today",
+    PLAN: "meals-plan",
+    PREP: "meals-prep",
+    LOGS: (filters?: object) => ["meal-logs", filters] as const,
+  },
 } as const;
