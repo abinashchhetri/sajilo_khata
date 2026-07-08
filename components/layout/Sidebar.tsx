@@ -21,6 +21,8 @@ import {
   Settings,
   LogOut,
   Music,
+  Dumbbell,
+  UtensilsCrossed,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -42,6 +44,11 @@ const FINANCE_NAV_ITEMS = [
 
 const MUSIC_NAV_ITEMS = [
   { label: "Music", href: ROUTES.MUSIC, icon: Music },
+] as const;
+
+const HEALTH_NAV_ITEMS = [
+  { label: "Fitness", href: ROUTES.WORKOUTS, icon: Dumbbell },
+  { label: "Nutrition", href: ROUTES.MEALS, icon: UtensilsCrossed },
 ] as const;
 
 // ─────── Component ───────────────────────────────────────────────────────────
@@ -106,6 +113,22 @@ const Sidebar = () => {
         {/* Music group */}
         <div className="flex flex-col gap-1">
           {MUSIC_NAV_ITEMS.map(({ label, href, icon }) => (
+            <NavLink
+              key={href}
+              href={href}
+              icon={icon}
+              label={label}
+              isActive={isActive(href)}
+            />
+          ))}
+        </div>
+
+        {/* Separator between music and health */}
+        <div className="mx-1 my-3 h-px bg-border" />
+
+        {/* Health group */}
+        <div className="flex flex-col gap-1">
+          {HEALTH_NAV_ITEMS.map(({ label, href, icon }) => (
             <NavLink
               key={href}
               href={href}

@@ -23,6 +23,8 @@ import {
   TrendingDown,
   ArrowRight,
   Music,
+  Dumbbell,
+  UtensilsCrossed,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -186,6 +188,18 @@ const DashboardPage = () => {
             Icon: BarChart2,
             label: "Analytics",
             sub: "Spending insights",
+          },
+          {
+            href: ROUTES.WORKOUTS,
+            Icon: Dumbbell,
+            label: "Fitness",
+            sub: "Log workouts",
+          },
+          {
+            href: ROUTES.MEALS,
+            Icon: UtensilsCrossed,
+            label: "Nutrition",
+            sub: "Track meals",
           },
         ].map(({ href, Icon, label, sub }) => (
           <Link key={href} href={href}>

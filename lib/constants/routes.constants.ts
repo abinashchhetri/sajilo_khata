@@ -22,4 +22,6 @@ export const ROUTES = {
   MUSIC: "/music",
   PLAYLIST_DETAIL: (id: string) => `/music/playlists/${id}`,
   SETUP: "/setup",
+  WORKOUTS: "/workouts",
+  MEALS: "/meals",
 } as const;
