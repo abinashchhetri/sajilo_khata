@@ -37,11 +37,11 @@ const EMPTY_SUMMARY = { inserted: 0, daysCovered: 0, skipped: 0, warnings: [] };
 // Tab content wrapper with clear heading
 function TabSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-4 pt-2">
+    <div className="space-y-3">
       <div>
         <h2 className="text-heading-3 text-foreground">{title}</h2>
         {description && (
-          <p className="mt-1 text-body-sm text-ink-muted">{description}</p>
+          <p className="mt-0.5 text-body-sm text-ink-muted">{description}</p>
         )}
       </div>
       {children}
@@ -67,9 +67,9 @@ export default function WorkoutsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-heading-3 text-foreground">Fitness</h1>
@@ -86,9 +86,11 @@ export default function WorkoutsPage() {
             Import plan
           </Button>
         </div>
+      </div>
 
+      <Tabs defaultValue="today" className="w-full">
         {/* Tab descriptions */}
-        <div className="grid grid-cols-4 gap-2 rounded-lg border border-hairline bg-canvas-soft p-3">
+        <div className="mb-3 grid grid-cols-4 gap-2 rounded-lg border border-hairline bg-canvas-soft p-2">
           <div className="text-center">
             <div className="text-body-sm font-medium text-foreground">Today</div>
             <p className="text-caption text-ink-faint">Log workouts fast</p>
@@ -106,9 +108,6 @@ export default function WorkoutsPage() {
             <p className="text-caption text-ink-faint">Weekly routine</p>
           </div>
         </div>
-      </div>
-
-      <Tabs defaultValue="today" className="w-full">
         <TabsList className="grid h-10 w-full grid-cols-4 gap-1 bg-canvas">
           <TabsTrigger value="today" className="gap-1.5">
             <Dumbbell size={15} />
