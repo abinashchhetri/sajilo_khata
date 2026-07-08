@@ -1,10 +1,12 @@
-// Planned meal card with macros
+// A planned meal with a one-tap "Ate this" action that logs it against the plan.
 
 "use client";
 
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { MealTypeBadge } from "./MealTypeBadge";
+import { MacroChips } from "./MacroChips";
 import { useHandleCreateMealLog } from "@/hooks/react-query/meals/post-meal-log.hook";
 import type { IMealPlanItem } from "@/types/nutrition/meals.types";
 
@@ -31,37 +33,33 @@ export function PlannedMealCard({ meal }: PlannedMealCardProps) {
 
   return (
     <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="font-semibold text-sm">{meal.name}</p>
-              <Badge variant="secondary" className="text-xs">
-                {meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)}
-              </Badge>
-            </div>
-
-            {(meal.calories !== null ||
-              meal.proteinG !== null ||
-              meal.carbsG !== null ||
-              meal.fatG !== null) && (
-              <div className="flex gap-2 text-xs text-muted-foreground">
-                {meal.calories !== null && <span>{meal.calories} cal</span>}
-                {meal.proteinG !== null && <span>P: {meal.proteinG}g</span>}
-                {meal.carbsG !== null && <span>C: {meal.carbsG}g</span>}
-                {meal.fatG !== null && <span>F: {meal.fatG}g</span>}
-              </div>
-            )}
+      <CardContent className="flex items-center justify-between gap-3 p-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-body-sm font-medium text-foreground">
+              {meal.name}
+            </span>
+            <MealTypeBadge mealType={meal.mealType} className="shrink-0" />
           </div>
-
-          <Button
-            size="sm"
-            onClick={handleAte}
-            disabled={isPending}
-          >
-            Ate this
-          </Button>
+          <MacroChips
+            className="mt-1.5"
+            calories={meal.calories}
+            proteinG={meal.proteinG}
+            carbsG={meal.carbsG}
+            fatG={meal.fatG}
+          />
         </div>
+
+        <Button
+          size="sm"
+          variant="outline"
+          className="shrink-0"
+          onClick={handleAte}
+          disabled={isPending}
+        >
+          <Check size={14} />
+          Ate this
+        </Button>
       </CardContent>
     </Card>
   );

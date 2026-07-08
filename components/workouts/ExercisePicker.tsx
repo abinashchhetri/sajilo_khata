@@ -1,4 +1,4 @@
-// Exercise selector for progress chart
+// Exercise selector for the progress chart.
 
 "use client";
 
@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetExerciseNames } from "@/hooks/react-query/workouts/get-exercise-names.hook";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetExerciseNames } from "@/hooks/react-query/workouts/get-exercise-names.hook";
 
 interface ExercisePickerProps {
   value: string;
@@ -20,14 +20,12 @@ interface ExercisePickerProps {
 export function ExercisePicker({ value, onChange }: ExercisePickerProps) {
   const { exercises, isLoading } = useGetExerciseNames();
 
-  if (isLoading) {
-    return <Skeleton className="h-10 w-full" />;
-  }
+  if (isLoading) return <Skeleton className="h-9 w-full rounded-xs" />;
 
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger>
-        <SelectValue placeholder="Select an exercise" />
+        <SelectValue placeholder="Choose an exercise to track" />
       </SelectTrigger>
       <SelectContent>
         {exercises.map((ex) => (
