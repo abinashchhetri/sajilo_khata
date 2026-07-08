@@ -1,61 +1,73 @@
-// Summary card for one workout session
+// Summary card for one workout session.
 
 "use client";
 
+import { useState } from "react";
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
+import { Trash2, Clock, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
-import { useState } from "react";
+import { feelingEmoji } from "@/utils/health-format.utils";
 import type { IWorkoutSession } from "@/types/fitness/workouts.types";
 
 interface SessionCardProps {
   session: IWorkoutSession;
   onDelete?: (id: string) => void;
   isDeleting?: boolean;
+  highlight?: boolean;
 }
 
 export function SessionCard({
   session,
   onDelete,
   isDeleting = false,
+  highlight = false,
 }: SessionCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
-
-  const feeling = session.feeling
-    ? ["😫", "😐", "😊", "😄", "🔥"][session.feeling - 1]
-    : null;
+  const emoji = feelingEmoji(session.feeling);
+  const doneCount = session.exercises.filter((e) => !e.skipped).length;
 
   return (
     <>
-      <Card>
+      <Card className={highlight ? "shadow-level-1" : undefined}>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <p className="font-semibold text-sm">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="truncate text-body-sm font-medium text-foreground">
                   {session.title || "Workout"}
-                </p>
-                {feeling && <span className="text-lg">{feeling}</span>}
+                </span>
+                {emoji && <span className="shrink-0 text-base leading-none">{emoji}</span>}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {format(new Date(session.performedAt), "MMM d, h:mm a")}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {session.exercises.length} exercise{session.exercises.length !== 1 ? "s" : ""}
-                {session.durationMinutes && ` • ${session.durationMinutes}m`}
-              </p>
+
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-ink-muted">
+                <span className="tabular-nums">
+                  {format(new Date(session.performedAt), "EEE, MMM d · h:mm a")}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Dumbbell size={12} />
+                  {doneCount} {doneCount === 1 ? "exercise" : "exercises"}
+                </span>
+                {session.durationMinutes != null && (
+                  <span className="inline-flex items-center gap-1 tabular-nums">
+                    <Clock size={12} />
+                    {session.durationMinutes}m
+                  </span>
+                )}
+              </div>
             </div>
 
             {onDelete && (
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
+                className="h-7 w-7 shrink-0 text-ink-faint hover:text-destructive"
                 onClick={() => setShowConfirm(true)}
                 disabled={isDeleting}
+                aria-label="Delete workout"
               >
-                <Trash2 size={16} />
+                <Trash2 size={14} />
               </Button>
             )}
           </div>
@@ -66,12 +78,13 @@ export function SessionCard({
         open={showConfirm}
         onOpenChange={setShowConfirm}
         title="Delete workout?"
-        description="This action cannot be undone."
+        description="This will permanently remove this logged session. This cannot be undone."
         confirmLabel="Delete"
         onConfirm={() => {
           onDelete?.(session.id);
           setShowConfirm(false);
         }}
+        isPending={isDeleting}
       />
     </>
   );

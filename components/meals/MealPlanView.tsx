@@ -1,21 +1,27 @@
-// Display the weekly meal plan grouped by day
+// Weekly meal plan grouped by day, meals ordered by the backend.
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import EmptyState from "@/components/shared/EmptyState";
-import { useGetMealPlan } from "@/hooks/react-query/meals/get-meal-plan.hook";
+import { CalendarDays } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/shared/EmptyState";
+import { MealTypeBadge } from "./MealTypeBadge";
+import { MacroChips } from "./MacroChips";
+import { useGetMealPlan } from "@/hooks/react-query/meals/get-meal-plan.hook";
 
-export function MealPlanView() {
+interface MealPlanViewProps {
+  onImport?: () => void;
+}
+
+export function MealPlanView({ onImport }: MealPlanViewProps) {
   const { plan, isLoading } = useGetMealPlan();
 
   if (isLoading) {
     return (
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-40" />
+          <Skeleton key={i} className="h-40 w-full rounded-lg" />
         ))}
       </div>
     );
@@ -24,47 +30,47 @@ export function MealPlanView() {
   if (!plan.length) {
     return (
       <EmptyState
+        icon={<CalendarDays size={22} strokeWidth={1.5} />}
         message="No meal plan yet"
-        description="Import a CSV to get started"
+        description="Import a CSV to seed your weekly meals"
+        ctaLabel={onImport ? "Import plan" : undefined}
+        onCta={onImport}
       />
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {plan.map((day) => (
         <Card key={day.dayOfWeek}>
-          <CardHeader>
-            <CardTitle className="text-base">{day.dayName}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+          <CardContent className="p-4">
+            <p className="text-eyebrow uppercase tracking-wide text-ink-faint">
+              {day.dayName}
+            </p>
+            <div className="mt-2 divide-y divide-hairline">
               {day.meals.map((meal) => (
                 <div
                   key={meal.id}
-                  className="flex items-start justify-between py-2 border-b last:border-0 text-sm"
+                  className="flex items-start justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
                 >
-                  <div>
-                    <p className="font-medium">{meal.name}</p>
-                    <Badge
-                      variant="secondary"
-                      className="text-xs mt-1"
-                    >
-                      {meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)}
-                    </Badge>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-body-sm text-foreground">
+                        {meal.name}
+                      </span>
+                      <MealTypeBadge
+                        mealType={meal.mealType}
+                        className="shrink-0"
+                      />
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground text-right">
-                    {meal.calories !== null && <p>{meal.calories} cal</p>}
-                    {(meal.proteinG !== null ||
-                      meal.carbsG !== null ||
-                      meal.fatG !== null) && (
-                      <p className="text-xs">
-                        {meal.proteinG !== null && `P: ${meal.proteinG}g `}
-                        {meal.carbsG !== null && `C: ${meal.carbsG}g `}
-                        {meal.fatG !== null && `F: ${meal.fatG}g`}
-                      </p>
-                    )}
-                  </div>
+                  <MacroChips
+                    className="shrink-0 justify-end"
+                    calories={meal.calories}
+                    proteinG={meal.proteinG}
+                    carbsG={meal.carbsG}
+                    fatG={meal.fatG}
+                  />
                 </div>
               ))}
             </div>

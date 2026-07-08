@@ -1,8 +1,11 @@
-// CSV import dialog — reusable for both workout and meal plans
+// CSV import dialog — reusable for both workout and meal plans.
+// Notion chrome: modal card, tight mono textarea, collapsible format hint,
+// success panel using the sticker-green accent (status = sticker palette).
 
 "use client";
 
 import { useState } from "react";
+import { ChevronDown, CheckCircle2, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +19,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface ImportResult {
+  inserted: number;
+  daysCovered: number;
+  skipped: number;
+  warnings: string[];
+}
 
 interface CsvImportDialogProps {
   open: boolean;
@@ -25,12 +35,7 @@ interface CsvImportDialogProps {
   formatHint: string;
   sampleCsv: string;
   isPending: boolean;
-  onImport: (csv: string) => Promise<{
-    inserted: number;
-    daysCovered: number;
-    skipped: number;
-    warnings: string[];
-  }>;
+  onImport: (csv: string) => Promise<ImportResult>;
 }
 
 export function CsvImportDialog({
@@ -43,12 +48,7 @@ export function CsvImportDialog({
   onImport,
 }: CsvImportDialogProps) {
   const [csv, setCsv] = useState("");
-  const [result, setResult] = useState<{
-    inserted: number;
-    daysCovered: number;
-    skipped: number;
-    warnings: string[];
-  } | null>(null);
+  const [result, setResult] = useState<ImportResult | null>(null);
   const [isFormatOpen, setIsFormatOpen] = useState(false);
 
   const handleImport = async () => {
@@ -56,18 +56,17 @@ export function CsvImportDialog({
       const summary = await onImport(csv);
       setResult(summary);
       setCsv("");
-    } catch (err) {
-      // Error is handled by the mutation hook's onError + global axios interceptor
+    } catch {
+      // Errors surface via the hook's onError + global axios interceptor.
     }
   };
 
   const handleClose = () => {
-    if (!isPending) {
-      setCsv("");
-      setResult(null);
-      setIsFormatOpen(false);
-      onOpenChange(false);
-    }
+    if (isPending) return;
+    setCsv("");
+    setResult(null);
+    setIsFormatOpen(false);
+    onOpenChange(false);
   };
 
   return (
@@ -76,79 +75,90 @@ export function CsvImportDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Paste your CSV data below or view the expected format
+            Paste your CSV below — this seeds your weekly plan.
           </DialogDescription>
         </DialogHeader>
 
         {!result ? (
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">CSV Data</label>
-              <textarea
-                value={csv}
-                onChange={(e) => setCsv(e.target.value)}
-                placeholder="Paste CSV here..."
-                className="w-full h-40 font-mono text-sm border rounded-md p-2 resize-none"
-                disabled={isPending}
-              />
-            </div>
+            <textarea
+              value={csv}
+              onChange={(e) => setCsv(e.target.value)}
+              placeholder="Paste CSV rows here…"
+              spellCheck={false}
+              className="h-44 w-full resize-none rounded-xs border border-input bg-canvas p-3 font-mono text-caption text-foreground placeholder:text-ink-faint focus-visible:border-ring focus-visible:shadow-level-1 focus-visible:outline-none disabled:opacity-50"
+              disabled={isPending}
+            />
 
             <Collapsible
               open={isFormatOpen}
               onOpenChange={setIsFormatOpen}
-              className="border rounded-md"
+              className="overflow-hidden rounded-md border border-hairline"
             >
-              <CollapsibleTrigger className="w-full flex items-center gap-2 p-3 hover:bg-muted">
+              <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2.5 text-body-sm font-medium text-ink-secondary transition-colors hover:bg-muted">
                 <ChevronDown
-                  size={16}
-                  className={`transition ${isFormatOpen ? "rotate-180" : ""}`}
+                  size={15}
+                  className={cn(
+                    "text-ink-faint transition-transform",
+                    isFormatOpen && "rotate-180",
+                  )}
                 />
-                <span className="text-sm font-medium">Expected Format</span>
+                Expected format
               </CollapsibleTrigger>
-              <CollapsibleContent className="border-t p-3 bg-muted text-sm space-y-2">
-                <p className="text-xs text-muted-foreground">{formatHint}</p>
-                <pre className="font-mono text-xs overflow-x-auto bg-background p-2 rounded">
+              <CollapsibleContent className="space-y-2 border-t border-hairline bg-canvas-soft p-3">
+                <p className="text-caption text-ink-muted">{formatHint}</p>
+                <pre className="overflow-x-auto rounded-xs bg-canvas p-2.5 font-mono text-[11px] leading-relaxed text-ink-secondary">
                   {sampleCsv}
                 </pre>
               </CollapsibleContent>
             </Collapsible>
 
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={handleClose} disabled={isPending}>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={isPending}
+              >
                 Cancel
               </Button>
-              <Button
-                onClick={handleImport}
-                disabled={!csv.trim() || isPending}
-              >
-                {isPending ? "Importing..." : "Import"}
+              <Button onClick={handleImport} disabled={!csv.trim() || isPending}>
+                {isPending ? "Importing…" : "Import"}
               </Button>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
-              <p className="text-sm font-medium text-green-900 dark:text-green-200">
-                ✓ Imported {result.inserted} rows across {result.daysCovered} days
-              </p>
-              {result.skipped > 0 && (
-                <p className="text-xs text-green-800 dark:text-green-300 mt-1">
-                  {result.skipped} rows skipped
+            <div className="flex items-start gap-3 rounded-md border border-hairline bg-canvas-soft p-4">
+              <CheckCircle2
+                size={20}
+                className="mt-0.5 shrink-0 text-accent-green"
+              />
+              <div>
+                <p className="text-body-sm font-medium text-foreground">
+                  Imported {result.inserted}{" "}
+                  {result.inserted === 1 ? "row" : "rows"} across{" "}
+                  {result.daysCovered}{" "}
+                  {result.daysCovered === 1 ? "day" : "days"}
                 </p>
-              )}
+                {result.skipped > 0 && (
+                  <p className="mt-0.5 text-caption text-ink-muted">
+                    {result.skipped} {result.skipped === 1 ? "row" : "rows"}{" "}
+                    skipped
+                  </p>
+                )}
+              </div>
             </div>
 
             {result.warnings.length > 0 && (
-              <div className="p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md">
-                <p className="text-xs font-medium text-amber-900 dark:text-amber-200 mb-2">
-                  Warnings:
-                </p>
-                <div className="max-h-40 overflow-y-auto space-y-1">
+              <div className="rounded-md border border-hairline bg-canvas-soft p-3">
+                <div className="mb-2 flex items-center gap-1.5 text-caption font-medium text-destructive">
+                  <AlertTriangle size={14} />
+                  {result.warnings.length}{" "}
+                  {result.warnings.length === 1 ? "warning" : "warnings"}
+                </div>
+                <div className="max-h-40 space-y-1 overflow-y-auto">
                   {result.warnings.map((warning, idx) => (
-                    <p
-                      key={idx}
-                      className="text-xs text-amber-800 dark:text-amber-300"
-                    >
+                    <p key={idx} className="text-caption text-ink-muted">
                       • {warning}
                     </p>
                   ))}

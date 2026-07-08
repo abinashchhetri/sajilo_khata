@@ -1,9 +1,9 @@
-// Fitness tracking page — workouts with tabs for Today, History, Progress, Plan
+// Fitness page — workouts. Tabs: Today (log in <60s), History, Progress, Plan.
 
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Upload, Dumbbell, CheckCircle2, Trash2, LineChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,27 +24,26 @@ import { useHandleClearWorkoutPlan } from "@/hooks/react-query/workouts/clear-wo
 import { useGetExerciseProgress } from "@/hooks/react-query/workouts/get-exercise-progress.hook";
 import type { ICreateSession } from "@/types/fitness/workouts.types";
 
-const WORKOUT_CSV_FORMAT = "day,exercise,sets,reps,weight,notes";
-const WORKOUT_CSV_SAMPLE = `Monday,Bench Press,4,8,100,
+const WORKOUT_CSV_FORMAT = "Columns: day, exercise, sets, reps, weight, notes";
+const WORKOUT_CSV_SAMPLE = `day,exercise,sets,reps,weight,notes
+Monday,Bench Press,4,8,100,
 Monday,Barbell Row,4,8,110,
 Tuesday,Squat,4,6,130,
-Tuesday,Leg Press,4,10,180,
 Wednesday,Deadlift,3,3,160,
-Thursday,Incline Bench,3,8,80,
 Friday,Lat Pulldown,3,10,110,`;
+
+const EMPTY_SUMMARY = { inserted: 0, daysCovered: 0, skipped: 0, warnings: [] };
 
 export default function WorkoutsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState("");
 
-  const { today, isLoading: isTodayLoading } = useGetWorkoutToday();
+  const { today, isLoading } = useGetWorkoutToday();
   const { handleCreate, isPending: isCreating } =
     useHandleCreateWorkoutSession();
-  const { handleImport, isPending: isImporting } =
-    useHandleImportWorkoutPlan();
-  const { handleClear, isPending: isClearing } =
-    useHandleClearWorkoutPlan();
+  const { handleImport, isPending: isImporting } = useHandleImportWorkoutPlan();
+  const { handleClear, isPending: isClearing } = useHandleClearWorkoutPlan();
   const { progress, isLoading: isProgressLoading } =
     useGetExerciseProgress(selectedExercise);
 
@@ -52,127 +51,136 @@ export default function WorkoutsPage() {
     await handleCreate(session);
   };
 
-  if (isTodayLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-32" />
-        <Skeleton className="h-96" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Fitness</h1>
-          <p className="text-muted-foreground text-sm">
-            Track your workouts and progress
+          <h1 className="text-heading-3 text-foreground">Fitness</h1>
+          <p className="text-body-sm text-ink-muted">
+            {today ? today.dayName : "Log workouts and track progress"}
           </p>
         </div>
-        <Button onClick={() => setImportOpen(true)}>
-          <Plus size={16} className="mr-2" />
-          Import Plan
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setImportOpen(true)}
+        >
+          <Upload size={15} />
+          Import plan
         </Button>
       </div>
 
       <Tabs defaultValue="today" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid h-9 w-full grid-cols-4">
           <TabsTrigger value="today">Today</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
           <TabsTrigger value="progress">Progress</TabsTrigger>
           <TabsTrigger value="plan">Plan</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="today" className="space-y-4">
-          {today?.loggedSession ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Logged ✓</h3>
+        {/* Today */}
+        <TabsContent value="today" className="pt-4">
+          {isLoading ? (
+            <Skeleton className="h-96 w-full rounded-lg" />
+          ) : today?.loggedSession ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-body-sm font-medium text-accent-green">
+                <CheckCircle2 size={16} />
+                Logged for today
               </div>
-              <SessionCard session={today.loggedSession} />
+              <SessionCard session={today.loggedSession} highlight />
             </div>
           ) : today?.plan.length ? (
-            <div className="space-y-4">
-              <h3 className="font-semibold">
-                {today.dayName} — {today.plan.length} exercises
-              </h3>
-              <LogSessionForm
-                plan={today.plan}
-                onSubmit={handleSessionSubmit}
-                isLoading={isCreating}
-              />
-            </div>
+            <Card>
+              <CardContent className="p-4 sm:p-5">
+                <LogSessionForm
+                  plan={today.plan}
+                  onSubmit={handleSessionSubmit}
+                  isLoading={isCreating}
+                />
+              </CardContent>
+            </Card>
           ) : (
             <EmptyState
-              message={`No plan for ${today?.dayName}`}
-              description="Import your weekly plan first"
+              icon={<Dumbbell size={22} strokeWidth={1.5} />}
+              message={`Nothing planned for ${today?.dayName ?? "today"}`}
+              description="Import your weekly plan to start logging"
+              ctaLabel="Import plan"
+              onCta={() => setImportOpen(true)}
             />
           )}
         </TabsContent>
 
-        <TabsContent value="history">
+        {/* History */}
+        <TabsContent value="history" className="pt-4">
           <SessionsList />
         </TabsContent>
 
-        <TabsContent value="progress" className="space-y-4">
-          <ExercisePicker value={selectedExercise} onChange={setSelectedExercise} />
-          {selectedExercise ? (
-            isProgressLoading ? (
-              <Skeleton className="h-80" />
-            ) : progress?.points.length ? (
-              <ProgressChart progress={progress} />
-            ) : (
-              <EmptyState
-                message="No data yet"
-                description="Log workouts to see progress"
-              />
-            )
+        {/* Progress */}
+        <TabsContent value="progress" className="space-y-4 pt-4">
+          <ExercisePicker
+            value={selectedExercise}
+            onChange={setSelectedExercise}
+          />
+          {!selectedExercise ? (
+            <EmptyState
+              icon={<LineChart size={22} strokeWidth={1.5} />}
+              message="Pick an exercise"
+              description="See how your lifts trend over time"
+            />
+          ) : isProgressLoading ? (
+            <Skeleton className="h-80 w-full rounded-lg" />
+          ) : progress?.points.length ? (
+            <ProgressChart progress={progress} />
           ) : (
             <EmptyState
-              message="Pick an exercise"
-              description="See your progress over time"
+              icon={<LineChart size={22} strokeWidth={1.5} />}
+              message="No data yet"
+              description="Log this exercise to see progress"
             />
           )}
         </TabsContent>
 
-        <TabsContent value="plan" className="space-y-4">
+        {/* Plan */}
+        <TabsContent value="plan" className="space-y-3 pt-4">
+          <WorkoutPlanView onImport={() => setImportOpen(true)} />
           <div className="flex justify-end">
             <Button
-              variant="destructive"
+              variant="ghost"
+              size="sm"
+              className="text-ink-faint hover:text-destructive"
               onClick={() => setClearConfirm(true)}
               disabled={isClearing}
             >
-              Clear Plan
+              <Trash2 size={14} />
+              Clear plan
             </Button>
           </div>
-          <WorkoutPlanView />
         </TabsContent>
       </Tabs>
 
       <CsvImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}
-        title="Import Workout Plan"
-        formatHint={`CSV format: ${WORKOUT_CSV_FORMAT}`}
+        title="Import workout plan"
+        formatHint={WORKOUT_CSV_FORMAT}
         sampleCsv={WORKOUT_CSV_SAMPLE}
         isPending={isImporting}
-        onImport={async (csv) => {
-          const result = await handleImport(csv);
-          return result || { inserted: 0, daysCovered: 0, skipped: 0, warnings: [] };
-        }}
+        onImport={async (csv) => (await handleImport(csv)) ?? EMPTY_SUMMARY}
       />
 
       <ConfirmDialog
         open={clearConfirm}
         onOpenChange={setClearConfirm}
         title="Clear workout plan?"
-        description="This will delete the entire weekly plan. This cannot be undone."
-        confirmLabel="Clear"
+        description="This deletes your entire weekly plan. This cannot be undone."
+        confirmLabel="Clear plan"
         onConfirm={async () => {
           await handleClear();
           setClearConfirm(false);
         }}
+        isPending={isClearing}
       />
     </div>
   );
