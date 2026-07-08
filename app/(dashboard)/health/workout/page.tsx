@@ -60,8 +60,8 @@ const WorkoutPage = () => {
   return (
     <div className="space-y-8">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-heading-3 text-foreground">Workout</h1>
           <p className="text-sm text-muted-foreground">
             Track your training sessions and progress
@@ -72,9 +72,11 @@ const WorkoutPage = () => {
             size="sm"
             variant="outline"
             onClick={() => setImportOpen(true)}
+            className="shrink-0"
           >
             <Upload size={14} />
-            Re-import Plan
+            <span className="hidden sm:inline">Re-import Plan</span>
+            <span className="sm:hidden">Re-import</span>
           </Button>
         )}
       </div>
