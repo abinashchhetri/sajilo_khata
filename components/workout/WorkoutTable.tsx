@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle2, Plus } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,13 +28,16 @@ import type {
 interface Props {
   rows: IWorkoutTableRow[];
   mode: "plan" | "session";
-  onSetChange?: (
+  // Fires once per set — only when weight + reps + feeling are all filled.
+  onCommit?: (
     exerciseName: string,
     setNumber: number,
-    field: "weightKg" | "reps" | "feeling",
-    value: number | string | null,
+    weight: number,
+    reps: number,
+    feeling: TFeeling,
   ) => void;
   onAddSet?: (exerciseName: string, bodyPart: string) => void;
+  onDelete?: (setId: string) => void;
   isLoading: boolean;
 }
 
@@ -73,13 +77,23 @@ const MobileSetRow = ({
   set,
   mode,
   exerciseName,
-  onSetChange,
+  onCommit,
+  onDelete,
 }: {
   set: ISetData;
   mode: "plan" | "session";
   exerciseName: string;
-  onSetChange?: Props["onSetChange"];
+  onCommit?: Props["onCommit"];
+  onDelete?: Props["onDelete"];
 }) => {
+  const [localWeight, setLocalWeight] = useState<number | "">(
+    set.weightKg || "",
+  );
+  const [localReps, setLocalReps] = useState<number | "">(set.reps || "");
+  const [localFeeling, setLocalFeeling] = useState<TFeeling | "">(
+    set.feeling ?? "",
+  );
+
   if (mode === "plan") {
     return (
       <div className="flex items-center gap-3 px-3 py-2 text-xs">
@@ -96,6 +110,12 @@ const MobileSetRow = ({
       </div>
     );
   }
+
+  const tryCommit = (w: number | "", r: number | "", f: TFeeling | "") => {
+    if (w !== "" && r !== "" && f !== "") {
+      onCommit?.(exerciseName, set.setNumber, Number(w), Number(r), f);
+    }
+  };
 
   return (
     <div
@@ -114,15 +134,11 @@ const MobileSetRow = ({
         min={0}
         step={0.5}
         placeholder="—"
-        value={set.weightKg ?? ""}
+        value={localWeight}
         onChange={(e) =>
-          onSetChange?.(
-            exerciseName,
-            set.setNumber,
-            "weightKg",
-            e.target.value === "" ? null : Number(e.target.value),
-          )
+          setLocalWeight(e.target.value === "" ? "" : Number(e.target.value))
         }
+        onBlur={() => tryCommit(localWeight, localReps, localFeeling)}
         className="h-7 w-14 px-1.5 text-xs tabular-nums"
       />
       <span className="text-[10px] text-muted-foreground">kg</span>
@@ -130,23 +146,21 @@ const MobileSetRow = ({
         type="number"
         min={0}
         placeholder="—"
-        value={set.reps ?? ""}
+        value={localReps}
         onChange={(e) =>
-          onSetChange?.(
-            exerciseName,
-            set.setNumber,
-            "reps",
-            e.target.value === "" ? null : Number(e.target.value),
-          )
+          setLocalReps(e.target.value === "" ? "" : Number(e.target.value))
         }
+        onBlur={() => tryCommit(localWeight, localReps, localFeeling)}
         className="h-7 w-12 px-1.5 text-xs tabular-nums"
       />
       <span className="text-[10px] text-muted-foreground">reps</span>
       <Select
-        value={set.feeling ?? ""}
-        onValueChange={(v) =>
-          onSetChange?.(exerciseName, set.setNumber, "feeling", v as TFeeling)
-        }
+        value={localFeeling}
+        onValueChange={(v) => {
+          const f = v as TFeeling;
+          setLocalFeeling(f);
+          tryCommit(localWeight, localReps, f);
+        }}
       >
         <SelectTrigger className="h-7 min-w-[68px] flex-1 px-1.5 text-xs">
           <SelectValue placeholder="feel" />
@@ -162,6 +176,15 @@ const MobileSetRow = ({
       {set.isCompleted && (
         <CheckCircle2 size={14} className="shrink-0 text-green-500" />
       )}
+      {set.sessionSetId && onDelete && (
+        <button
+          type="button"
+          onClick={() => onDelete(set.sessionSetId!)}
+          className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/50 hover:bg-destructive/10 hover:text-destructive"
+        >
+          <X size={11} />
+        </button>
+      )}
     </div>
   );
 };
@@ -171,13 +194,15 @@ const MobileSetRow = ({
 const MobileLayout = ({
   grouped,
   mode,
-  onSetChange,
+  onCommit,
   onAddSet,
+  onDelete,
 }: {
   grouped: GroupedDay[];
   mode: "plan" | "session";
-  onSetChange?: Props["onSetChange"];
+  onCommit?: Props["onCommit"];
   onAddSet?: Props["onAddSet"];
+  onDelete?: Props["onDelete"];
 }) => (
   <div className="space-y-4 md:hidden">
     {grouped.map(({ day, exercises }) => (
@@ -206,7 +231,8 @@ const MobileLayout = ({
                   set={set}
                   mode={mode}
                   exerciseName={exerciseName}
-                  onSetChange={onSetChange}
+                  onCommit={onCommit}
+                  onDelete={onDelete}
                 />
               ))}
             </div>
@@ -239,14 +265,16 @@ const DesktopLayout = ({
   grouped,
   rows,
   mode,
-  onSetChange,
+  onCommit,
   onAddSet,
+  onDelete,
 }: {
   grouped: GroupedDay[];
   rows: IWorkoutTableRow[];
   mode: "plan" | "session";
-  onSetChange?: Props["onSetChange"];
+  onCommit?: Props["onCommit"];
   onAddSet?: Props["onAddSet"];
+  onDelete?: Props["onDelete"];
 }) => {
   const colCount = maxSets(rows);
   return (
@@ -324,15 +352,21 @@ const DesktopLayout = ({
                           <SetCell
                             set={set}
                             mode={mode}
-                            onChange={
+                            onCommit={
                               mode === "session"
-                                ? (field, value) =>
-                                    onSetChange?.(
+                                ? (weight, reps, feeling) =>
+                                    onCommit?.(
                                       exerciseName,
                                       set.setNumber,
-                                      field,
-                                      value,
+                                      weight,
+                                      reps,
+                                      feeling,
                                     )
+                                : undefined
+                            }
+                            onDelete={
+                              mode === "session" && set.sessionSetId
+                                ? () => onDelete?.(set.sessionSetId!)
                                 : undefined
                             }
                           />
@@ -371,8 +405,9 @@ const DesktopLayout = ({
 const WorkoutTable = ({
   rows,
   mode,
-  onSetChange,
+  onCommit,
   onAddSet,
+  onDelete,
   isLoading,
 }: Props) => {
   if (isLoading) {
@@ -401,15 +436,17 @@ const WorkoutTable = ({
       <MobileLayout
         grouped={grouped}
         mode={mode}
-        onSetChange={onSetChange}
+        onCommit={onCommit}
         onAddSet={onAddSet}
+        onDelete={onDelete}
       />
       <DesktopLayout
         grouped={grouped}
         rows={rows}
         mode={mode}
-        onSetChange={onSetChange}
+        onCommit={onCommit}
         onAddSet={onAddSet}
+        onDelete={onDelete}
       />
     </>
   );

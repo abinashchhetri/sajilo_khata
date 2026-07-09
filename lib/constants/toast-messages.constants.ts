@@ -90,6 +90,7 @@ export const TOAST_MESSAGES = {
     SESSION_COMPLETED: "Workout completed!",
     SET_LOGGED: "Set saved",
     SET_ADDED: "Set added",
+    SET_DELETED: "Set removed",
   },
 
   MEALS: {
