@@ -110,6 +110,16 @@ export const addSet = async (
   return data;
 };
 
+export const deleteSet = async (
+  sessionId: string,
+  setId: string,
+): Promise<TApiResponse<{ message: string }>> => {
+  const { data } = await apiClient.delete(
+    `/workout/sessions/${sessionId}/sets/${setId}`,
+  );
+  return data;
+};
+
 export const completeSession = async (
   sessionId: string,
 ): Promise<TApiResponse<IWorkoutSession>> => {

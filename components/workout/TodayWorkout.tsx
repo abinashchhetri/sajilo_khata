@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { format } from "date-fns";
 import { CheckCircle2, Dumbbell, Loader2 } from "lucide-react";
 
@@ -13,12 +13,14 @@ import { useGetActivePlan } from "@/hooks/react-query/workout/get-active-plan.ho
 import { useHandleStartSession } from "@/hooks/react-query/workout/start-session.hook";
 import { useHandleLogSet } from "@/hooks/react-query/workout/log-set.hook";
 import { useHandleAddSet } from "@/hooks/react-query/workout/add-set.hook";
+import { useHandleDeleteSet } from "@/hooks/react-query/workout/delete-set.hook";
 import { useHandleCompleteSession } from "@/hooks/react-query/workout/complete-session.hook";
 import type {
   IWorkoutSession,
   IWorkoutTableRow,
   TFeeling,
 } from "@/types/workout/workout.types";
+
 
 // ─────── Helpers ─────────────────────────────────────────────────────────────
 
@@ -51,20 +53,18 @@ const TodayWorkout = () => {
   const { handleStartSession, isPending: isStarting } = useHandleStartSession();
   const { handleLogSet } = useHandleLogSet(sessionId);
   const { handleAddSet } = useHandleAddSet(sessionId);
+  const { handleDeleteSet } = useHandleDeleteSet(sessionId);
   const { handleCompleteSession, isPending: isCompleting } =
     useHandleCompleteSession(sessionId);
 
-  // Debounce ref: key = `${exerciseName}-${setNumber}-${field}`, timer id
-  const debounceRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
-
-  const handleSetChange = useCallback(
+  // Called once per set — only when weight + reps + feeling are all filled.
+  const handleSetCommit = useCallback(
     (
       exerciseName: string,
       setNumber: number,
-      field: "weightKg" | "reps" | "feeling",
-      value: number | string | null,
+      weight: number,
+      reps: number,
+      feeling: TFeeling,
     ) => {
       if (!session) return;
       const exercise = (session.exercises ?? []).find(
@@ -73,30 +73,15 @@ const TodayWorkout = () => {
       const set = exercise?.sets.find((s) => s.setNumber === setNumber);
       if (!set || !exercise) return;
 
-      const key = `${exerciseName}-${setNumber}-${field}`;
-      const prev = debounceRef.current.get(key);
-      if (prev) clearTimeout(prev);
-
-      const delay = field === "feeling" ? 0 : 500;
-      const timer = setTimeout(() => {
-        const body = {
-          exerciseName,
-          bodyPart: exercise.bodyPart,
-          setNumber,
-          actualWeightKg:
-            field === "weightKg" ? (value as number | null) : set.actualWeightKg,
-          actualReps:
-            field === "reps" ? (value as number | null) : set.actualReps,
-          actualFeeling:
-            field === "feeling"
-              ? (value as TFeeling | null)
-              : set.actualFeeling,
-          planExerciseId: set.planExerciseId,
-        };
-        handleLogSet(body).catch(() => {});
-      }, delay);
-
-      debounceRef.current.set(key, timer);
+      handleLogSet({
+        exerciseName,
+        bodyPart: exercise.bodyPart,
+        setNumber,
+        actualWeightKg: weight,
+        actualReps: reps,
+        actualFeeling: feeling,
+        planExerciseId: set.planExerciseId,
+      }).catch(() => {});
     },
     [session, handleLogSet],
   );
@@ -185,8 +170,9 @@ const TodayWorkout = () => {
       <WorkoutTable
         rows={rows}
         mode={isComplete ? "plan" : "session"}
-        onSetChange={handleSetChange}
+        onCommit={handleSetCommit}
         onAddSet={handleAddSetForExercise}
+        onDelete={(setId) => handleDeleteSet(setId).catch(() => {})}
         isLoading={false}
       />
     </div>
