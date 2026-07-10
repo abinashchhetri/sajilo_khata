@@ -89,4 +89,9 @@ export const QUERY_KEYS = {
     PREP: "meals-prep",
     LOGS: (filters?: object) => ["meal-logs", filters] as const,
   },
+
+  SOLANA_PAY: {
+    REQUEST: (id: string) => ["solana-pay-request", id] as const,
+    STATUS: (id: string) => ["solana-pay-status", id] as const,
+  },
 } as const;

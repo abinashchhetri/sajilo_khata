@@ -104,4 +104,11 @@ export const TOAST_MESSAGES = {
     PREP_DELETED: "Meal prep removed",
     PORTION_CONSUMED: "Portion logged",
   },
+
+  SOLANA_PAY: {
+    PAYMENT_CONFIRMED: "✅ Payment confirmed! Transaction logged automatically.",
+    PAYMENT_EXPIRED: "Payment request expired. Create a new one.",
+    QR_CREATED: "QR code ready — scan with Phantom wallet",
+    COPY_URL: "Payment URL copied to clipboard",
+  },
 } as const;
