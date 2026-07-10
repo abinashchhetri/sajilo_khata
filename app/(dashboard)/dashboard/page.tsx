@@ -33,6 +33,7 @@ import VoiceRecordButton from "@/components/voice/VoiceRecordButton";
 import ConfirmationCard from "@/components/voice/ConfirmationCard";
 import NowPlayingWidget from "@/components/music/NowPlayingWidget";
 import TrackCard from "@/components/music/TrackCard";
+import ReceivePaymentButton from "@/components/solana-pay/ReceivePaymentButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/context/use-auth.hook";
 import { useGetAccounts } from "@/hooks/react-query/accounts/get-accounts.hook";
@@ -148,6 +149,12 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      {/* ── Quick action: Receive USDC ── */}
+      <div className="flex items-center gap-2">
+        <ReceivePaymentButton />
+        <span className="text-xs text-muted-foreground">Receive USDC · Solana devnet</span>
       </div>
 
       {/* ── Voice ConfirmationCard — centered modal overlay ── */}

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import AccountList from "@/components/accounts/AccountList";
 import AccountForm from "@/components/accounts/AccountForm";
+import ReceivePaymentButton from "@/components/solana-pay/ReceivePaymentButton";
 import Loader from "@/components/shared/Loader";
 import { useGetAccounts } from "@/hooks/react-query/accounts/get-accounts.hook";
 import { useHandleCreateAccount } from "@/hooks/react-query/accounts/post-account.hook";
@@ -58,6 +59,7 @@ const AccountsPage = () => {
           >
             {showArchived ? "Hide Archived" : "Show Archived"}
           </Button>
+          <ReceivePaymentButton />
           <Button size="sm" onClick={() => setIsCreateOpen(true)}>
             <Plus size={16} />
             Add Account
