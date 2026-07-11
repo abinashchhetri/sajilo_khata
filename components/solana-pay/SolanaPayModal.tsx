@@ -12,6 +12,15 @@
 import { useState } from "react";
 import { ExternalLink, Copy, CheckCircle2, Clock, XCircle, Zap, Send } from "lucide-react";
 
+// Type declaration for Phantom wallet API
+declare global {
+  interface Window {
+    solana?: {
+      isPhantom?: boolean;
+    };
+  }
+}
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,8 +50,25 @@ const SolanaPayModal = ({ isOpen, onClose, paymentRequest, isCreating }: Props) 
 
   const payWithPhantom = () => {
     if (!paymentRequest?.solanaPayUrl) return;
-    // Use solana: URI scheme — Phantom wallet will intercept this
-    window.location.href = paymentRequest.solanaPayUrl;
+
+    // Check if Phantom wallet is installed
+    const isPhantomInstalled = window.solana?.isPhantom;
+
+    if (!isPhantomInstalled) {
+      toast.error(
+        "Phantom wallet not detected. Install Phantom or use the QR code above."
+      );
+      return;
+    }
+
+    try {
+      // Try the solana: URI scheme — Phantom wallet will intercept this
+      window.location.href = paymentRequest.solanaPayUrl;
+    } catch (err) {
+      toast.error(
+        "Could not launch Phantom. Try scanning the QR code or copying the URL instead."
+      );
+    }
   };
 
   const explorerUrl = signature
