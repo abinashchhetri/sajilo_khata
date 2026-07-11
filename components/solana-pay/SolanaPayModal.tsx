@@ -10,7 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from "react";
-import { ExternalLink, Copy, CheckCircle2, Clock, XCircle, Zap } from "lucide-react";
+import { ExternalLink, Copy, CheckCircle2, Clock, XCircle, Zap, Send } from "lucide-react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,12 @@ const SolanaPayModal = ({ isOpen, onClose, paymentRequest, isCreating }: Props) 
     if (!paymentRequest?.solanaPayUrl) return;
     navigator.clipboard.writeText(paymentRequest.solanaPayUrl);
     toast.success(TOAST_MESSAGES.SOLANA_PAY.COPY_URL);
+  };
+
+  const payWithPhantom = () => {
+    if (!paymentRequest?.solanaPayUrl) return;
+    // Use solana: URI scheme — Phantom wallet will intercept this
+    window.location.href = paymentRequest.solanaPayUrl;
   };
 
   const explorerUrl = signature
@@ -90,14 +96,20 @@ const SolanaPayModal = ({ isOpen, onClose, paymentRequest, isCreating }: Props) 
               {new Date(paymentRequest.expiresAt).toLocaleTimeString()}
             </p>
 
-            <div className="flex gap-2 w-full">
-              <Button variant="outline" size="sm" className="flex-1" onClick={copyUrl}>
-                <Copy className="h-3 w-3 mr-1" />
-                Copy URL
+            <div className="flex flex-col gap-2">
+              <Button size="sm" onClick={payWithPhantom} className="w-full">
+                <Send className="h-4 w-4 mr-1.5" />
+                Pay with Phantom
               </Button>
-              <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>
-                Cancel
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={copyUrl}>
+                  <Copy className="h-3 w-3 mr-1" />
+                  Copy URL
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" onClick={onClose}>
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         )}
