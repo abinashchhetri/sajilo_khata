@@ -591,6 +591,95 @@ const AboutPage = () => {
         </div>
       </section>
 
+      {/* ── About the project ─────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
+          <Eyebrow>About</Eyebrow>
+          <h2 className="mt-4 text-heading-2 md:text-heading-1">
+            Solana Workshop 101 Mini Hack
+          </h2>
+          <p className="mt-4 text-body-md text-ink-muted dark:text-muted-foreground">
+            A production-ready demonstration of blockchain payment integration in consumer finance.
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-border bg-canvas p-6 md:p-8">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-title">Project Overview</h3>
+              <p className="mt-3 text-body-md text-ink-muted dark:text-muted-foreground">
+                Sajilo Khata is a comprehensive personal finance and wellness platform that integrates Solana blockchain payments to create a novel monetization model. Users manage their complete financial life — accounts, transactions, investments, and budgets — and track fitness and nutrition data from one dashboard. Premium features, such as AI-generated personalized 7-day fitness and meal plans powered by Gemini AI, are purchased by paying just 0.01 USDC via Phantom Wallet using the x402 HTTP 402 Payment Required protocol, enabling on-chain payment verification with full transparency on Solana devnet explorer.
+              </p>
+            </div>
+
+            <div className="border-t border-border pt-6">
+              <h3 className="text-title">Why It Qualifies</h3>
+              <ul className="mt-4 space-y-3">
+                {[
+                  "Deep integration of the Solana ecosystem: Solana Pay QR codes, SPL token transfers, x402 signature-based payment verification, and devnet testnet usage",
+                  "Innovative use of blockchain for real-world application monetization beyond simple transfers",
+                  "Complete working MVP: NestJS backend with TypeORM and Gemini AI integration, React Query frontend with Phantom wallet signing",
+                  "Production-ready proof of concept running on Solana devnet with testnet USDC",
+                  "Demonstrates how blockchain payments can gate premium AI services in a consumer finance application",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-body-sm text-ink-muted dark:text-muted-foreground"
+                  >
+                    <CheckCircle2
+                      size={15}
+                      className="mt-0.5 shrink-0 text-accent-green"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border-t border-border pt-6">
+              <h3 className="text-title mb-4">Open Source Repositories</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <a
+                  href="https://github.com/abinashchhetri/sajilo_khata"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 rounded-md border border-border p-4 transition-colors hover:bg-muted"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft flex-shrink-0">
+                    <Code2 size={18} className="text-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Frontend</p>
+                    <p className="text-caption text-ink-muted dark:text-muted-foreground">
+                      Next.js 15, React Query, Phantom integration
+                    </p>
+                  </div>
+                  <ArrowRight size={16} className="mt-1 ml-auto text-primary flex-shrink-0" />
+                </a>
+
+                <a
+                  href="https://github.com/abinashchhetri/personal-dashboard-backend"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 rounded-md border border-border p-4 transition-colors hover:bg-muted"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft flex-shrink-0">
+                    <GitBranch size={18} className="text-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Backend</p>
+                    <p className="text-caption text-ink-muted dark:text-muted-foreground">
+                      NestJS, PostgreSQL, Solana integration
+                    </p>
+                  </div>
+                  <ArrowRight size={16} className="mt-1 ml-auto text-primary flex-shrink-0" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Inverted hero-band — the single indigo night moment ────────── */}
       <section className="bg-hero">
         <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 md:py-28">
