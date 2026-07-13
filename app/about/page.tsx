@@ -1,689 +1,700 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Wallet, Heart, Music, Utensils, DollarSign, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  Code2,
+  Dumbbell,
+  GitBranch,
+  Landmark,
+  LineChart,
+  Lock,
+  Menu,
+  Music,
+  QrCode,
+  ShieldCheck,
+  Utensils,
+  X,
+  Zap,
+} from "lucide-react";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Public About page — no auth required. Built strictly to DESIGN-notion.md:
+//   · page sits on warm canvas-soft; cards are white with hairline borders
+//   · one structural accent (primary blue) for CTAs and links only
+//   · sticker palette on icons/dots only, never structure
+//   · feature cards: rounded-lg, 24px padding; image wells rounded-xl
+//   · nav CTA = button-utility; hero CTAs = primary pill + secondary pill
+//   · single inverted indigo hero-band; canvas-soft caption footer
+// Anchor ids are stable: #overview #features #blockchain #built #technology.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const IMAGES = {
+  hero: "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  payments:
+    "https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  protocol:
+    "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  fitness:
+    "https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1200",
+};
+
+const NAV_LINKS = [
+  { href: "#features", label: "Features" },
+  { href: "#blockchain", label: "Blockchain" },
+  { href: "#built", label: "What was built" },
+  { href: "#technology", label: "Technology" },
+];
+
+// Eyebrow badge-pill: white surface, primary text, eyebrow type, 4px/8px pad.
+const Eyebrow = ({ children }: { children: React.ReactNode }) => (
+  <span className="inline-flex items-center rounded-full border border-border bg-canvas px-2 py-1 text-eyebrow uppercase text-primary">
+    {children}
+  </span>
+);
 
 const AboutPage = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
-                SK
-              </div>
-              <span className="font-semibold text-slate-900 dark:text-white">Sajilo Khata</span>
-            </div>
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">Features</a>
-              <a href="#how-it-works" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">How It Works</a>
-              <a href="#blockchain" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">Blockchain</a>
-              <a href="#technology" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">Technology</a>
-              <a href="#bounty" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">Bounty</a>
-              <Link href="/login" className="text-sm px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
-                Get Started
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+  const [menuOpen, setMenuOpen] = useState(false);
 
-      {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
-        <div className="space-y-6 max-w-3xl">
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white leading-tight">
-            Take Control of Your Money, Health, and Life
-          </h1>
-          <p className="text-xl text-slate-600 dark:text-slate-300">
-            Sajilo Khata is a unified personal finance and wellness platform that brings together spending management, fitness planning, meal tracking, and investments—all in one place you can trust.
-          </p>
-          <div className="flex flex-wrap gap-4 pt-4">
-            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
-              Start Free <ArrowRight size={18} />
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* ── Nav — white surface, body-sm links, utility CTA ────────────── */}
+      <nav className="sticky top-0 z-50 border-b border-border bg-canvas/95 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-8">
+            <Link
+              href="/"
+              className="flex items-center gap-2 transition-opacity hover:opacity-70"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-sm bg-foreground">
+                <Landmark size={14} className="text-canvas" />
+              </span>
+              <span className="text-body-sm font-semibold">Sajilo Khata</span>
             </Link>
-            <a href="#features" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-              Explore Features
+
+            <div className="hidden items-center gap-6 lg:flex">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-body-sm text-ink-muted transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="hidden items-center gap-5 lg:flex">
+            <Link
+              href="/login"
+              className="text-body-sm text-ink-muted transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
+            >
+              Log in
+            </Link>
+            {/* button-utility: white, ink, rounded-md, 4px/14px padding */}
+            <Link
+              href="/login"
+              className="rounded-md border border-border bg-canvas px-3.5 py-1.5 text-body-sm font-medium transition-colors hover:bg-muted"
+            >
+              Get started free
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="rounded-md border border-border p-2 text-ink-muted dark:text-muted-foreground lg:hidden"
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+
+        {menuOpen && (
+          <div className="border-t border-border bg-canvas px-4 py-3 lg:hidden">
+            <div className="flex flex-col gap-1">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-md px-3 py-3 text-body-sm transition-colors hover:bg-muted"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <Link
+                href="/login"
+                className="mt-2 rounded-full bg-primary px-6 py-3 text-center text-button text-primary-foreground"
+              >
+                Get started free
+              </Link>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* ── Hero — centered display type over product shot ─────────────── */}
+      <section id="overview" className="mx-auto max-w-6xl px-4 pt-20 sm:px-6 md:pt-28">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-heading-1 sm:text-display-2 lg:text-display-1">
+            Your money and your health. One workspace.
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-body-md text-ink-muted dark:text-muted-foreground">
+            Sajilo Khata brings accounts, spending, workouts, meals and
+            investments together — with payments settled in USDC on Solana.
+          </p>
+          {/* button-primary pill + button-secondary pill (level-1) */}
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="/login"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-button text-primary-foreground transition-colors hover:bg-primary-active"
+            >
+              Get started free
+              <ArrowRight size={16} />
+            </Link>
+            <a
+              href="#blockchain"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-canvas px-6 py-2.5 text-button shadow-level-1 transition-colors hover:bg-muted"
+            >
+              See how payments work
             </a>
           </div>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-800">
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">What You Can Do</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300">Everything you need to build better habits and understand your finances.</p>
+        {/* Product shot — rounded-xl image well, hairline edge, level-1 */}
+        <div className="mx-auto mt-14 max-w-5xl md:mt-20">
+          <div className="overflow-hidden rounded-xl border border-border bg-canvas shadow-level-1">
+            <img
+              src={IMAGES.hero}
+              alt="Financial charts on a laptop screen"
+              className="aspect-[16/9] w-full object-cover"
+              loading="eager"
+            />
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Financial Management */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-800 transition bg-white dark:bg-slate-900">
-            <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-              <Wallet className="text-blue-600 dark:text-blue-400" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Account & Transaction Management</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Track multiple accounts, categorize expenses, and understand your spending patterns at a glance. Get detailed insights into where your money goes.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <li>• Multiple account types and balances</li>
-              <li>• Smart transaction categorization</li>
-              <li>• Transfer management between accounts</li>
-              <li>• Historical transaction tracking</li>
-            </ul>
-          </div>
-
-          {/* Analytics & Insights */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800 transition bg-white dark:bg-slate-900">
-            <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
-              <TrendingUp className="text-emerald-600 dark:text-emerald-400" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Financial Analytics</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Visualize your financial health with interactive charts and reports. See trends over time and identify opportunities to save more.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <li>• Spending trends and patterns</li>
-              <li>• Category breakdowns</li>
-              <li>• Income vs expense analysis</li>
-              <li>• Custom time period filters</li>
-            </ul>
-          </div>
-
-          {/* Fitness & Wellness */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-red-300 dark:hover:border-red-800 transition bg-white dark:bg-slate-900">
-            <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-              <Heart className="text-red-600 dark:text-red-400" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Fitness Planning</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Create and manage workout plans, track exercise progress, and get personalized recommendations based on your fitness history.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <li>• Workout schedule management</li>
-              <li>• Exercise tracking with sets and reps</li>
-              <li>• Weekly plan templates</li>
-              <li>• AI-generated personalized plans</li>
-            </ul>
-          </div>
-
-          {/* Meal Tracking */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-orange-300 dark:hover:border-orange-800 transition bg-white dark:bg-slate-900">
-            <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-4">
-              <Utensils className="text-orange-600 dark:text-orange-400" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Nutrition Tracking</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Log meals, monitor calories, and maintain your nutrition goals. Understand your eating habits and make informed dietary choices.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <li>• Daily meal logging</li>
-              <li>• Calorie tracking</li>
-              <li>• Meal type categorization</li>
-              <li>• Nutrition history</li>
-            </ul>
-          </div>
-
-          {/* Music & Playlists */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-800 transition bg-white dark:bg-slate-900">
-            <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-              <Music className="text-purple-600 dark:text-purple-400" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Music Collection</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Organize and manage your music playlists. Keep track of your favorite songs and curated collections in one unified space.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <li>• Playlist creation and management</li>
-              <li>• Music organization</li>
-              <li>• Personal collection tracking</li>
-              <li>• Mood-based playlists</li>
-            </ul>
-          </div>
-
-          {/* Investments */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-800 transition bg-white dark:bg-slate-900">
-            <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
-              <DollarSign className="text-amber-600 dark:text-amber-400" size={24} />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Investment Tracking</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Keep tabs on your investment portfolio, track returns, and monitor your wealth growth across different asset classes.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <li>• Portfolio management</li>
-              <li>• Investment tracking</li>
-              <li>• Return monitoring</li>
-              <li>• Asset allocation overview</li>
-            </ul>
+        {/* Built-on strip */}
+        <div className="mx-auto max-w-4xl py-14 text-center md:py-20">
+          <p className="text-eyebrow uppercase text-ink-faint">Built on</p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {["Solana", "USDC", "Phantom", "Next.js", "NestJS", "PostgreSQL"].map(
+              (name) => (
+                <span
+                  key={name}
+                  className="text-title text-ink-faint"
+                >
+                  {name}
+                </span>
+              ),
+            )}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-800">
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">How It Works</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300">A simple, straightforward approach to managing your complete life.</p>
+      {/* ── Features ───────────────────────────────────────────────────── */}
+      <section id="features" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
+          <Eyebrow>Features</Eyebrow>
+          <h2 className="mt-4 text-heading-2 md:text-heading-1">
+            Everything in one place
+          </h2>
+          <p className="mt-4 text-body-md text-ink-muted dark:text-muted-foreground">
+            A banking app, a fitness tracker, a calorie counter and a
+            spreadsheet — replaced by one dashboard.
+          </p>
         </div>
 
-        <div className="space-y-8">
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-600 text-white font-bold">1</div>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Sign Up & Get Started</h3>
-              <p className="text-slate-600 dark:text-slate-300">Create your account in seconds. No credit card required. You'll land in your personalized dashboard right away.</p>
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-600 text-white font-bold">2</div>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Connect Your Accounts</h3>
-              <p className="text-slate-600 dark:text-slate-300">Add your bank accounts, wallets, and financial accounts to track everything in one place. Full control over what you share.</p>
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-600 text-white font-bold">3</div>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Log Your Activity</h3>
-              <p className="text-slate-600 dark:text-slate-300">Record transactions, workouts, meals, and investments. Quick entry makes it easy to stay consistent.</p>
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-600 text-white font-bold">4</div>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Get Insights & Act</h3>
-              <p className="text-slate-600 dark:text-slate-300">View detailed analytics, identify patterns, and make smarter decisions about money, fitness, and wellness.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Blockchain & Solana */}
-      <section id="blockchain" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-800">
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Blockchain Integration: Solana</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300">Advanced cryptocurrency payment infrastructure built on Solana, enabling secure, fast, and transparent transactions.</p>
-        </div>
-
-        <div className="space-y-8">
-          {/* Solana Pay */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                <Wallet className="text-purple-600 dark:text-purple-400" size={24} />
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Solana Pay Integration</h3>
-                <p className="text-slate-600 dark:text-slate-300 mb-4">
-                  Industry-standard payment protocol that enables QR code-based transactions. Users can scan and pay directly from Phantom wallet without leaving the app.
-                </p>
-                <div className="space-y-3">
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-                    <h4 className="font-medium text-slate-900 dark:text-white mb-2">Key Features</h4>
-                    <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 dark:text-purple-400">→</span>
-                        <span><strong>QR Code Generation:</strong> Dynamic QR codes for each payment, instantly shareable</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 dark:text-purple-400">→</span>
-                        <span><strong>Phantom Wallet Integration:</strong> One-click signing and approval within browser extension</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 dark:text-purple-400">→</span>
-                        <span><strong>USDC Support:</strong> USD Coin (SPL token) for stablecoin payments with no volatility</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 dark:text-purple-400">→</span>
-                        <span><strong>Transaction Verification:</strong> On-chain verification ensures payment authenticity</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 dark:text-purple-400">→</span>
-                        <span><strong>Devnet Support:</strong> Full testing environment on Solana devnet before mainnet</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+        {/* Two large white feature cards, image band on top */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-canvas">
+            <div className="flex flex-1 flex-col p-6">
+              <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft">
+                <LineChart size={20} className="text-accent-sky" />
+              </span>
+              <h3 className="text-heading-3">Money, tracked properly</h3>
+              <p className="mt-2 text-body-md text-ink-muted dark:text-muted-foreground">
+                Balances across banks, wallets and cards. Every expense
+                categorised and searchable, with transfers handled in-app.
+              </p>
+              <ul className="mt-5 space-y-3">
+                {[
+                  "Multiple accounts and in-app transfers",
+                  "Smart transaction categorisation",
+                  "Spending trends by category and date range",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-body-sm text-ink-muted dark:text-muted-foreground"
+                  >
+                    <CheckCircle2
+                      size={15}
+                      className="mt-0.5 shrink-0 text-accent-green"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="#built"
+                className="mt-auto inline-flex items-center gap-1.5 pt-6 text-body-sm font-medium text-primary hover:underline"
+              >
+                See the implementation
+                <ArrowRight size={14} />
+              </a>
             </div>
           </div>
 
-          {/* x402 Payment Protocol */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
-                <DollarSign className="text-indigo-600 dark:text-indigo-400" size={24} />
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">HTTP 402 Payment Challenge (x402)</h3>
-                <p className="text-slate-600 dark:text-slate-300 mb-4">
-                  Advanced payment protocol that enables AI agents and applications to request payments before delivering content. Built for the AI economy where agents need to pay for services programmatically.
-                </p>
-                <div className="space-y-3">
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-                    <h4 className="font-medium text-slate-900 dark:text-white mb-2">How It Works</h4>
-                    <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-                      <div className="flex gap-3">
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold min-w-fit">1. Request</span>
-                        <span>Client requests a resource (AI plan, data, service)</span>
-                      </div>
-                      <div className="flex gap-3">
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold min-w-fit">2. Challenge</span>
-                        <span>Server responds with HTTP 402 status + payment challenge details (amount, recipient, asset)</span>
-                      </div>
-                      <div className="flex gap-3">
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold min-w-fit">3. Payment</span>
-                        <span>Client signs and submits payment via Solana blockchain with memo containing proof</span>
-                      </div>
-                      <div className="flex gap-3">
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold min-w-fit">4. Verify</span>
-                        <span>Client retries request with X-PAYMENT header containing quote ID + transaction signature</span>
-                      </div>
-                      <div className="flex gap-3">
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold min-w-fit">5. Deliver</span>
-                        <span>Server verifies payment on blockchain and returns the requested resource</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                    <h4 className="font-medium text-slate-900 dark:text-white mb-2">Use Case: AI-Generated Fitness Plans</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      Users can preview an AI-generated personalized 7-day fitness + meal plan for free. To generate a custom plan based on their 90-day history, they pay 0.01 USDC via Phantom wallet. The plan is delivered immediately after payment verification on the blockchain.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Flow Details */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                <Zap className="text-green-600 dark:text-green-400" size={24} />
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Smart Payment Processing</h3>
-                <p className="text-slate-600 dark:text-slate-300 mb-4">
-                  Complete transaction lifecycle management with security verification at every step.
-                </p>
-                <div className="space-y-3">
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg space-y-3">
-                    <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white mb-1">💰 USDC Stablecoin</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        Payments use USD Coin (USDC), an SPL token on Solana with 1:1 USD backing. Eliminates volatility risk for both users and merchants.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white mb-1">🔐 Phantom Wallet</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        Browser-based wallet that keeps private keys secure on user's device. Users review and sign transactions without trusting the app with keys.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white mb-1">✅ On-Chain Verification</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        Every payment is verified on the Solana blockchain. Backend queries the blockchain to confirm transfer occurred before granting access.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white mb-1">📊 Transaction Tracking</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        All transactions are recorded on immutable blockchain ledger. View transaction details, signatures, and confirmations in Solana Explorer.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white mb-1">⏱️ Sub-Second Processing</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        Solana's high throughput means payments confirm within seconds, not minutes. Devnet can confirm in 1-3 seconds typically.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Devnet Testing */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center flex-shrink-0">
-                <Zap className="text-cyan-600 dark:text-cyan-400" size={24} />
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-3">Devnet Testing Environment</h3>
-                <p className="text-slate-600 dark:text-slate-300 mb-4">
-                  Full Solana environment for testing without real money. Perfect for development, demos, and learning.
-                </p>
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mb-2">Getting Started with Devnet</p>
-                    <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                      <li>• <strong>1.</strong> Install Phantom wallet browser extension</li>
-                      <li>• <strong>2.</strong> Go to Settings → Developer Settings → Toggle Devnet</li>
-                      <li>• <strong>3.</strong> Get devnet SOL from faucet (for gas fees)</li>
-                      <li>• <strong>4.</strong> Get devnet USDC from Circle Faucet (https://faucet.circle.com)</li>
-                      <li>• <strong>5.</strong> Try payments in Sajilo Khata with real transaction confirmation</li>
-                    </ul>
-                  </div>
-                  <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">Why Devnet?</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
-                      Devnet mirrors mainnet exactly but with free tokens. This means you can test the entire payment flow, verify on-chain logic, and ensure everything works before using real money.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Security & Transparency */}
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Security & Transparency</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                <h4 className="font-medium text-slate-900 dark:text-white mb-2">🔒 Key Security Features</h4>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                  <li>• Private keys never leave user's device</li>
-                  <li>• All transactions cryptographically signed</li>
-                  <li>• Blockchain verification of all payments</li>
-                  <li>• No central point of failure</li>
-                  <li>• Transparent audit trail on-chain</li>
-                </ul>
-              </div>
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                <h4 className="font-medium text-slate-900 dark:text-white mb-2">📋 Full Transparency</h4>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                  <li>• View every transaction in Solana Explorer</li>
-                  <li>• Verify recipient addresses publicly</li>
-                  <li>• Check payment amounts and token details</li>
-                  <li>• Confirm transaction signatures</li>
-                  <li>• Monitor account balances anytime</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Technology Stack */}
-      <section id="technology" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-800">
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Built With Modern Technology</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300">A solid foundation for speed, security, and reliability.</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-12">
-          <div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Frontend</h3>
-            <ul className="space-y-3 text-slate-600 dark:text-slate-300">
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>Next.js 15</strong> — Modern React framework with app routing, server components, and optimized performance
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>React Query</strong> — Powerful server state management and data fetching
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>Tailwind CSS</strong> — Utility-first styling for responsive design
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>TypeScript</strong> — Type-safe development for fewer bugs
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>Solana Web3.js</strong> — Native blockchain transaction building and verification
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">Backend & Blockchain</h3>
-            <ul className="space-y-3 text-slate-600 dark:text-slate-300">
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>NestJS</strong> — Scalable Node.js framework with modular architecture
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>PostgreSQL</strong> — Reliable relational database for data integrity
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>Solana Blockchain</strong> — Payment processing, transaction verification, on-chain storage
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>Phantom Wallet API</strong> — Secure signing and transaction approval
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
-                <div>
-                  <strong>OAuth 2.0</strong> — Secure user authentication and authorization
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="mt-12 p-8 rounded-xl bg-slate-100 dark:bg-slate-800">
-          <div className="flex items-start gap-3">
-            <Zap className="text-amber-600 dark:text-amber-400 mt-1 flex-shrink-0" size={24} />
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-2">Enterprise-Grade Infrastructure</h4>
-              <p className="text-slate-600 dark:text-slate-300">
-                Sajilo Khata combines traditional fintech best practices with blockchain innovation. Solana Pay and x402 payment protocol enable truly decentralized payment flows where users maintain full control over their funds, while our backend provides seamless integration, verification, and user experience.
+          <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-canvas">
+            <img
+              src={IMAGES.fitness}
+              alt="Runner training outdoors at sunrise"
+              className="aspect-[2/1] w-full object-cover"
+              loading="lazy"
+            />
+            <div className="p-6">
+              <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft">
+                <Dumbbell size={20} className="text-accent-orange" />
+              </span>
+              <h3 className="text-heading-3">Training and nutrition</h3>
+              <p className="mt-2 text-body-md text-ink-muted dark:text-muted-foreground">
+                Weekly workout plans with sets, reps and weight per exercise.
+                Meals logged by day and type, so intake and training load sit
+                side by side.
               </p>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Bounty Section */}
-      <section id="bounty" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-800">
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Development & Bounty</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300">Supporting open development and rewarding contributions.</p>
-        </div>
-
-        <div className="space-y-8">
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Features Currently Developed</h3>
-            <div className="space-y-4 text-slate-600 dark:text-slate-300">
-              <div>
-                <h4 className="font-medium text-slate-900 dark:text-white mb-2">Solana Pay Integration</h4>
-                <p>Full cryptocurrency payment support using Solana blockchain. Users can pay with USDC on devnet for premium features. QR code generation and Phantom wallet integration for seamless transactions.</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-slate-900 dark:text-white mb-2">AI-Generated Fitness Plans</h4>
-                <p>Personalized 7-day workout and meal plans generated by AI based on your 90-day history. Uses the HTTP 402 payment challenge protocol (x402) for agent-friendly pricing. Available as both free preview and paid generation.</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-slate-900 dark:text-white mb-2">Multi-tier Access Model</h4>
-                <p>Tier A provides free preview showcase of AI capabilities. Tier B enables live payments through Phantom wallet for generated plans. Feature flags allow flexible deployment and testing.</p>
-              </div>
+        {/* Small flat feature cards — white, rounded-lg, 24px pad */}
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              icon: Utensils,
+              tint: "text-accent-teal",
+              title: "Meal tracking",
+              desc: "Calorie counts per meal, compared against your training.",
+            },
+            {
+              icon: BarChart3,
+              tint: "text-accent-purple-deep dark:text-accent-purple",
+              title: "Investments",
+              desc: "Holdings, returns and allocation next to your spending.",
+            },
+            {
+              icon: Music,
+              tint: "text-accent-pink",
+              title: "Music library",
+              desc: "Playlists live in the same dashboard as everything else.",
+            },
+            {
+              icon: ShieldCheck,
+              tint: "text-accent-green",
+              title: "Private by design",
+              desc: "OAuth sign-in, JWT sessions, keys never touch the server.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-lg border border-border bg-canvas p-6"
+            >
+              <item.icon size={20} className={`mb-4 ${item.tint}`} />
+              <h4 className="text-title">{item.title}</h4>
+              <p className="mt-1.5 text-body-sm text-ink-muted dark:text-muted-foreground">
+                {item.desc}
+              </p>
             </div>
-          </div>
-
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">What This Achieves</h3>
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                  <span className="text-sm">✓</span>
-                </div>
-                <div>
-                  <p className="text-slate-600 dark:text-slate-300">
-                    <strong>Crypto Integration:</strong> Shows how to safely integrate blockchain payments into traditional finance apps
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                  <span className="text-sm">✓</span>
-                </div>
-                <div>
-                  <p className="text-slate-600 dark:text-slate-300">
-                    <strong>AI Integration:</strong> Demonstrates practical AI features (generated fitness plans) as part of a real application
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                  <span className="text-sm">✓</span>
-                </div>
-                <div>
-                  <p className="text-slate-600 dark:text-slate-300">
-                    <strong>Modern Architecture:</strong> Full-stack implementation of a scalable, production-ready SaaS platform
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                  <span className="text-sm">✓</span>
-                </div>
-                <div>
-                  <p className="text-slate-600 dark:text-slate-300">
-                    <strong>Payment Protocols:</strong> Implementation of advanced payment standards (Solana Pay, x402 protocol)
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0 mt-1">
-                  <span className="text-sm">✓</span>
-                </div>
-                <div>
-                  <p className="text-slate-600 dark:text-slate-300">
-                    <strong>Multi-Modal User Experience:</strong> Combines finance, health, lifestyle, and entertainment in one unified platform
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Bounty Opportunities</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-6">
-              Saxilo Khata is actively developed with clear feature milestones. Contributions addressing bounty items receive recognition and rewards.
-            </p>
-            <div className="space-y-3">
-              <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border-l-4 border-blue-600">
-                <p className="font-medium text-slate-900 dark:text-white">Frontend Implementation</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">UI components, feature development, performance optimization</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border-l-4 border-blue-600">
-                <p className="font-medium text-slate-900 dark:text-white">Backend Services</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">API endpoints, database optimization, payment processing</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border-l-4 border-blue-600">
-                <p className="font-medium text-slate-900 dark:text-white">Security & Testing</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Security audits, test coverage, compliance implementation</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border-l-4 border-blue-600">
-                <p className="font-medium text-slate-900 dark:text-white">Documentation</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">API docs, deployment guides, developer guides</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-200 dark:border-slate-800">
-        <div className="text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Ready to Get Started?</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Join thousands of users managing their finances and wellness in one place. Sign up free today and start tracking what matters.
+      {/* ── Blockchain ─────────────────────────────────────────────────── */}
+      <section id="blockchain" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
+          <Eyebrow>Blockchain</Eyebrow>
+          <h2 className="mt-4 text-heading-2 md:text-heading-1">
+            Payments that settle on-chain
+          </h2>
+          <p className="mt-4 text-body-md text-ink-muted dark:text-muted-foreground">
+            No card forms, no stored payment details. The wallet signs, the
+            chain confirms, the backend verifies.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/login" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
-              Start Your Journey <ArrowRight size={18} />
-            </Link>
-            <a href="#features" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-              Learn More
-            </a>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Solana Pay card */}
+          <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-canvas">
+            <img
+              src={IMAGES.payments}
+              alt="Physical cryptocurrency coins on a dark surface"
+              className="aspect-[2/1] w-full object-cover"
+              loading="lazy"
+            />
+            <div className="flex flex-1 flex-col p-6">
+              <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft">
+                <QrCode size={20} className="text-foreground" />
+              </span>
+              <h3 className="text-heading-3">Solana Pay</h3>
+              <p className="mt-2 text-body-md text-ink-muted dark:text-muted-foreground">
+                Each payment request generates a QR code. Scanning it with
+                Phantom shows the exact amount, token and recipient before
+                anything is signed — the private key never leaves the wallet.
+              </p>
+              <ul className="mt-5 space-y-3">
+                {[
+                  "USDC transfers — a dollar-pegged SPL token",
+                  "One-tap approval inside Phantom",
+                  "Every transaction inspectable on Solana Explorer",
+                  "Full devnet environment for risk-free testing",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-body-sm text-ink-muted dark:text-muted-foreground"
+                  >
+                    <CheckCircle2
+                      size={15}
+                      className="mt-0.5 shrink-0 text-accent-green"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* x402 card */}
+          <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-canvas">
+            <img
+              src={IMAGES.protocol}
+              alt="Source code on a developer's screen"
+              className="aspect-[2/1] w-full object-cover"
+              loading="lazy"
+            />
+            <div className="flex flex-1 flex-col p-6">
+              <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft">
+                <Zap size={20} className="text-foreground" />
+              </span>
+              <h3 className="text-heading-3">HTTP 402, put to work</h3>
+              <p className="mt-2 text-body-md text-ink-muted dark:text-muted-foreground">
+                The AI plan endpoint answers unpaid requests with an x402
+                challenge stating the price, asset and recipient. Any client —
+                a browser or an AI agent — can pay and retry.
+              </p>
+              {/* Step list — data-table chrome: canvas-soft header rows */}
+              <div className="mt-5 overflow-hidden rounded-md border border-border">
+                {[
+                  "Client requests the plan endpoint",
+                  "Server replies 402 with a payment quote",
+                  "Phantom signs a 0.01 USDC transfer",
+                  "Backend verifies the transfer on-chain",
+                  "Personalised 7-day plan is delivered",
+                ].map((text, i) => (
+                  <div
+                    key={text}
+                    className={`flex items-center gap-3 bg-canvas-soft px-4 py-3 ${
+                      i > 0 ? "border-t border-border" : ""
+                    }`}
+                  >
+                    <span className="text-eyebrow uppercase text-ink-faint">
+                      0{i + 1}
+                    </span>
+                    <span className="text-body-sm">{text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* AI coaching statement */}
+        <div className="mx-auto mt-16 max-w-2xl text-center md:mt-24">
+          <h3 className="text-heading-2 md:text-heading-1">
+            Coaching built from your own history
+          </h3>
+          <p className="mt-4 text-body-md text-ink-muted dark:text-muted-foreground">
+            Ninety days of logged workouts and meals feed the plan generator.
+            For 0.01 USDC it returns a full week of training and nutrition —
+            with the reasoning behind every choice. A free preview is available
+            before paying anything.
+          </p>
+          <a
+            href="#technology"
+            className="mt-5 inline-flex items-center gap-1.5 text-button text-primary hover:underline"
+          >
+            See the stack behind it
+            <ArrowRight size={15} />
+          </a>
+        </div>
+      </section>
+
+      {/* ── What was built ─────────────────────────────────────────────── */}
+      <section id="built" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
+          <Eyebrow>The work</Eyebrow>
+          <h2 className="mt-4 text-heading-2 md:text-heading-1">
+            What was built
+          </h2>
+          <p className="mt-4 text-body-md text-ink-muted dark:text-muted-foreground">
+            A complete, working implementation — from database schema to wallet
+            signature — not a mock-up.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              icon: Code2,
+              title: "Full-stack architecture",
+              desc: "Next.js 15 frontend, NestJS backend, PostgreSQL storage. TypeScript end to end.",
+            },
+            {
+              icon: GitBranch,
+              title: "Solana integration",
+              desc: "Phantom connection, USDC transfer construction, memo instructions, on-chain verification.",
+            },
+            {
+              icon: Zap,
+              title: "x402 payment flow",
+              desc: "402 challenge issuing, quote management, payment-header verification, replay protection.",
+            },
+            {
+              icon: Lock,
+              title: "Security",
+              desc: "OAuth 2.0 sign-in, JWT sessions, and a model where private keys never touch the server.",
+            },
+            {
+              icon: BarChart3,
+              title: "Analytics",
+              desc: "Interactive spending charts, fitness adherence tracking, investment performance views.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Testing",
+              desc: "Documented flows for every tier: preview endpoints, live devnet payments, regression passes.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-lg border border-border bg-canvas p-6"
+            >
+              <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-canvas-soft">
+                <item.icon
+                  size={20}
+                  className="text-ink-muted dark:text-muted-foreground"
+                />
+              </span>
+              <h4 className="text-title">{item.title}</h4>
+              <p className="mt-1.5 text-body-sm text-ink-muted dark:text-muted-foreground">
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Highlights — elevated white feature card */}
+        <div className="mt-6 rounded-xl border border-border bg-canvas p-6 shadow-level-1 md:p-8">
+          <h3 className="text-heading-3">Highlights</h3>
+          <div className="mt-6 grid gap-x-10 gap-y-4 md:grid-cols-2">
+            {[
+              "Working x402 implementation — HTTP 402 challenges answered by real wallet payments",
+              "End-to-end Solana Pay flow, from QR generation to explorer-verifiable settlement",
+              "Finance, health, nutrition, investments and music in one coherent product",
+              "Modular NestJS services with React Query state management on the client",
+              "Devnet test environment documented step by step, including wallet funding",
+              "Feature-flagged payment tier that ships safely with the flag off",
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-2.5">
+                <CheckCircle2
+                  size={15}
+                  className="mt-0.5 shrink-0 text-accent-green"
+                />
+                <p className="text-body-sm text-ink-muted dark:text-muted-foreground">
+                  {item}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li><a href="#features" className="hover:text-slate-900 dark:hover:text-white transition">Features</a></li>
-                <li><a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition">How It Works</a></li>
-                <li><a href="#blockchain" className="hover:text-slate-900 dark:hover:text-white transition">Blockchain</a></li>
-                <li><a href="#technology" className="hover:text-slate-900 dark:hover:text-white transition">Technology</a></li>
+      {/* ── Technology ─────────────────────────────────────────────────── */}
+      <section id="technology" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
+          <Eyebrow>Stack</Eyebrow>
+          <h2 className="mt-4 text-heading-2 md:text-heading-1">Technology</h2>
+          <p className="mt-4 text-body-md text-ink-muted dark:text-muted-foreground">
+            Chosen for reliability first — every piece is widely used in
+            production elsewhere.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          {[
+            {
+              heading: "Frontend",
+              items: [
+                "Next.js 15",
+                "React 19",
+                "React Query",
+                "TypeScript",
+                "Tailwind CSS",
+                "Solana web3.js",
+              ],
+            },
+            {
+              heading: "Backend",
+              items: [
+                "NestJS",
+                "PostgreSQL",
+                "Prisma ORM",
+                "Solana Pay SDK",
+                "SPL Token",
+                "Gemini API",
+              ],
+            },
+            {
+              heading: "Infrastructure",
+              items: [
+                "Solana devnet / mainnet",
+                "Phantom wallet",
+                "OAuth 2.0",
+                "JWT sessions",
+                "Docker",
+                "Vercel & Railway",
+              ],
+            },
+          ].map((col) => (
+            <div
+              key={col.heading}
+              className="rounded-lg border border-border bg-canvas p-6"
+            >
+              <p className="text-eyebrow uppercase text-ink-faint">
+                {col.heading}
+              </p>
+              <ul className="mt-4 space-y-3">
+                {col.items.map((tech) => (
+                  <li
+                    key={tech}
+                    className="flex items-center gap-2.5 text-body-sm"
+                  >
+                    <span className="h-1 w-1 rounded-full bg-ink-faint" />
+                    {tech}
+                  </li>
+                ))}
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Developers</h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li><a href="#bounty" className="hover:text-slate-900 dark:hover:text-white transition">Bounty</a></li>
-                <li><a href="#technology" className="hover:text-slate-900 dark:hover:text-white transition">API</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Documentation</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Blog</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Contact</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Terms</a></li>
-                <li><a href="#" className="hover:text-slate-900 dark:hover:text-white transition">Security</a></li>
-              </ul>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Inverted hero-band — the single indigo night moment ────────── */}
+      <section className="bg-hero">
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 md:py-28">
+          <div className="mx-auto max-w-2xl">
+            <h2 className="text-heading-1 text-white sm:text-display-2">
+              See it running
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-body-md text-white/70">
+              Sign in, add an account, log a workout — and if you have a
+              Phantom wallet on devnet, try the on-chain payment flow yourself.
+            </p>
+            {/* button-primary + button-secondary pair on the night band */}
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/login"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-button text-primary-foreground transition-colors hover:bg-primary-active"
+              >
+                Get started free
+                <ArrowRight size={16} />
+              </Link>
+              <a
+                href="https://explorer.solana.com/?cluster=devnet"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white px-6 py-2.5 text-button text-ink shadow-level-2 transition-opacity hover:opacity-90"
+              >
+                Solana Explorer
+              </a>
             </div>
           </div>
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-8">
-            <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
-              © 2026 Sajilo Khata. All rights reserved. Built with care for your financial and wellness journey.
+        </div>
+      </section>
+
+      {/* ── Footer — canvas-soft band, caption type ────────────────────── */}
+      <footer className="border-t border-border bg-canvas-soft">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-foreground">
+                  <Landmark size={12} className="text-canvas" />
+                </span>
+                <span className="text-body-sm font-semibold">Sajilo Khata</span>
+              </div>
+              <p className="mt-3 max-w-xs text-caption text-ink-muted dark:text-muted-foreground">
+                Personal finance and wellness, with payments settled on Solana.
+              </p>
+            </div>
+
+            {[
+              {
+                heading: "Product",
+                links: [
+                  { label: "Features", href: "#features" },
+                  { label: "Blockchain", href: "#blockchain" },
+                  { label: "Technology", href: "#technology" },
+                ],
+              },
+              {
+                heading: "Project",
+                links: [
+                  { label: "What was built", href: "#built" },
+                  { label: "Overview", href: "#overview" },
+                  { label: "Open the app", href: "/login" },
+                ],
+              },
+              {
+                heading: "Solana",
+                links: [
+                  {
+                    label: "Explorer (devnet)",
+                    href: "https://explorer.solana.com/?cluster=devnet",
+                  },
+                  { label: "Phantom wallet", href: "https://phantom.app" },
+                  { label: "USDC faucet", href: "https://faucet.circle.com" },
+                ],
+              },
+            ].map((col) => (
+              <div key={col.heading}>
+                <p className="text-eyebrow uppercase text-ink-faint">
+                  {col.heading}
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {col.links.map((link) => (
+                    <li key={link.label}>
+                      <a
+                        href={link.href}
+                        {...(link.href.startsWith("http")
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                        className="text-caption text-ink-secondary transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 border-t border-border pt-6">
+            <p className="text-caption text-ink-muted dark:text-muted-foreground">
+              © 2026 Sajilo Khata
             </p>
           </div>
         </div>
