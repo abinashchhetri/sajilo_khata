@@ -9,6 +9,7 @@ import TodayWorkout from "@/components/workout/TodayWorkout";
 import WorkoutTable from "@/components/workout/WorkoutTable";
 import WorkoutPlanImport from "@/components/workout/WorkoutPlanImport";
 import ExerciseProgress from "@/components/workout/ExerciseProgress";
+import AiPlanShowcaseCard from "@/components/x402/AiPlanShowcaseCard";
 import EmptyState from "@/components/shared/EmptyState";
 import { useGetActivePlan } from "@/hooks/react-query/workout/get-active-plan.hook";
 import type {
@@ -122,6 +123,14 @@ const WorkoutPage = () => {
       <section className="space-y-3">
         <h2 className="text-body-sm font-medium text-foreground">Progress</h2>
         <ExerciseProgress exerciseNames={names} />
+      </section>
+
+      {/* ── AI Plan (x402) ── */}
+      <section className="space-y-3">
+        <h2 className="text-body-sm font-medium text-foreground">
+          AI Coaching
+        </h2>
+        <AiPlanShowcaseCard />
       </section>
 
       {/* Import dialog */}

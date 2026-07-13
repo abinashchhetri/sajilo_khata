@@ -25,6 +25,7 @@ export const ROUTES = {
   HEALTH: {
     WORKOUT: "/health/workout",
     WORKOUT_HISTORY: "/health/workout/history",
+    AI_PLAN: "/health/ai-plan",
   },
   MEALS: "/meals",
 } as const;
