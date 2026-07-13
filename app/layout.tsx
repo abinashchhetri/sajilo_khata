@@ -41,8 +41,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         <ReactQueryProvider>
           <AuthProvider>
             {children}
-            <Toaster position="top-right" />
           </AuthProvider>
+          <Toaster position="top-right" />
         </ReactQueryProvider>
       </body>
     </html>
