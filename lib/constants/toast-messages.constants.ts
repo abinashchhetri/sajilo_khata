@@ -111,4 +111,14 @@ export const TOAST_MESSAGES = {
     QR_CREATED: "QR code ready — scan with Phantom wallet",
     COPY_URL: "Payment URL copied to clipboard",
   },
+
+  X402: {
+    COPY_CURL: "curl command copied to clipboard",
+    COPY_ENDPOINT: "Endpoint URL copied",
+    NO_PHANTOM:
+      "Phantom wallet not detected. Install the Phantom extension (devnet) to pay in-browser.",
+    PAY_CONFIRMED: "Payment confirmed on devnet — generating your plan...",
+    PLAN_READY: "Your AI fitness plan is ready.",
+    PAY_FAILED: "Payment could not be completed. Please try again.",
+  },
 } as const;

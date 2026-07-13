@@ -94,4 +94,8 @@ export const QUERY_KEYS = {
     REQUEST: (id: string) => ["solana-pay-request", id] as const,
     STATUS: (id: string) => ["solana-pay-status", id] as const,
   },
+
+  X402: {
+    PREVIEW: ["x402-preview"] as const,
+  },
 } as const;
