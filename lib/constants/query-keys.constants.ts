@@ -72,6 +72,16 @@ export const QUERY_KEYS = {
     SINGLE: (id: string) => ["playlist", id] as const,
   },
 
+  PLAYLIST_IMPORT: {
+    PREVIEW: (url: string) => ["playlist-import-preview", url] as const,
+    PROGRESS: (importId: string) =>
+      ["playlist-import-progress", importId] as const,
+    ITEMS: (importId: string, filters?: object) =>
+      ["playlist-import-items", importId, filters] as const,
+    HISTORY: (filters?: object) =>
+      ["playlist-import-history", filters] as const,
+  },
+
   WORKOUT: {
     PLAN: "workout-plan",
     PLAN_DAY: (day: string) => ["workout-plan-day", day] as const,
@@ -97,5 +107,15 @@ export const QUERY_KEYS = {
 
   X402: {
     PREVIEW: ["x402-preview"] as const,
+  },
+
+  GOALS: {
+    ALL: (filters?: object) => ["goals", filters] as const,
+    SINGLE: (id: string) => ["goal", id] as const,
+    TODAY_ACROSS: (date: string) => ["goals-today", date] as const,
+    TODAY_ONE: (id: string, date: string) => ["goal-today", id, date] as const,
+    HISTORY: (id: string, range?: object) =>
+      ["goal-history", id, range] as const,
+    REWARDS: (id: string) => ["goal-rewards", id] as const,
   },
 } as const;
