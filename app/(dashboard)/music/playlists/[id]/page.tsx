@@ -165,8 +165,10 @@ const PlaylistDetailPage = () => {
 
   const handlePlayAll = () => {
     if (!localTracks.length) return;
-    // TODO: queue the remaining tracks once a queue feature is implemented
-    playTrack(localTracks[0]);
+    // Passing the playlist id lets the backend queue the rest behind this
+    // track. Only cached tracks are queued, so a still-importing playlist
+    // plays what is ready rather than stalling on tracks that aren't.
+    playTrack(localTracks[0], id);
   };
 
   const handleSelectTrack = async (track: IDiscoveryTrack) => {
@@ -320,9 +322,9 @@ const PlaylistDetailPage = () => {
                 {index + 1}
               </span>
 
-              {/* Track card */}
+              {/* Track card — playlistId scopes playback to this playlist */}
               <div className="min-w-0 flex-1">
-                <TrackCard track={track} compact />
+                <TrackCard track={track} compact playlistId={id} />
               </div>
 
               {/* Drag handle */}

@@ -56,6 +56,14 @@ export interface IQueueStateResponse {
   tracks: IQueueTrackItem[];
 }
 
+// Optional body for POST /music/play/:trackId.
+// Sending playlistId tells the backend to queue the rest of that playlist
+// behind this track. Omitting it entirely keeps the old behaviour — a normal
+// or discovery play that drifts into recommendations.
+export interface IPlayTrackBody {
+  playlistId?: string;
+}
+
 export interface IPlayTrackResponse {
   track: ITrack;
   streamUrl: string | null;

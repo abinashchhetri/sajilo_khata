@@ -26,6 +26,10 @@ interface Props {
   showPlayCount?: boolean;
   compact?: boolean;
   darkContext?: boolean;
+  /** Set when this row lives inside a playlist — the backend then queues the
+   *  rest of that playlist behind this track. Leave undefined in history and
+   *  recently-played lists, where playback should stay unscoped. */
+  playlistId?: string;
 }
 
 // ─────── Equalizer bars — rendered when the track is actively playing ─────────
@@ -46,21 +50,25 @@ const TrackCard = ({
   showPlayCount = false,
   compact = false,
   darkContext = false,
+  playlistId,
 }: Props) => {
   const { currentTrack, playTrack } = useMusicPlayer();
 
   const isCurrentlyPlaying = currentTrack?.id === track.id;
   const imageSize = compact ? 40 : 48;
 
+  // undefined outside a playlist — keeps history/discovery plays unscoped
+  const handlePlay = () => playTrack(track, playlistId);
+
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => playTrack(track)}
+      onClick={handlePlay}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          playTrack(track);
+          handlePlay();
         }
       }}
       className={[

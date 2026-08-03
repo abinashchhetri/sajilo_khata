@@ -13,6 +13,7 @@ import type {
   ITrack,
   IStreamResponse,
   IPrepareNextResponse,
+  IPlayTrackBody,
   IPlayTrackResponse,
   IRecommendationCacheItem,
   ISearchMusicParams,
@@ -23,11 +24,18 @@ import type {
   IQueueStateResponse,
 } from "@/types/music/music.types";
 
-// Increment play count and return a presigned stream URL for the track
+// Increment play count and return a presigned stream URL for the track.
+// Pass playlistId when the play originates from a playlist — the backend then
+// queues the rest of that playlist behind this track. The body is optional, so
+// omitting it preserves the original normal/discovery behaviour exactly.
 export const playTrack = async (
   trackId: string,
+  playlistId?: string,
 ): Promise<TApiResponse<IPlayTrackResponse>> => {
-  const { data } = await apiClient.post(`/music/play/${trackId}`);
+  const body: IPlayTrackBody | undefined = playlistId
+    ? { playlistId }
+    : undefined;
+  const { data } = await apiClient.post(`/music/play/${trackId}`, body);
   return data;
 };
 
