@@ -83,6 +83,16 @@ export const TOAST_MESSAGES = {
     MUST_BE_CACHED: "Track must finish loading before adding to a playlist",
   },
 
+  PLAYLIST_IMPORT: {
+    STARTED: "Import started — tracks will download in the background",
+    CANCELLED: "Import cancelled",
+    RETRIED: "Retrying failed tracks",
+    COMPLETED: "Import finished — your playlist is ready",
+    FAILED: "Import failed",
+    ALREADY_RUNNING:
+      "You already have an import running. Wait for it to finish or cancel it first.",
+  },
+
   WORKOUT: {
     PLAN_IMPORTED: "Workout plan imported",
     PLAN_IMPORT_ERROR: "Could not import plan — see errors below.",
@@ -120,5 +130,24 @@ export const TOAST_MESSAGES = {
     PAY_CONFIRMED: "Payment confirmed on devnet — generating your plan...",
     PLAN_READY: "Your AI fitness plan is ready.",
     PAY_FAILED: "Payment could not be completed. Please try again.",
+  },
+
+  GOALS: {
+    CREATED: "Goal created",
+    UPDATED: "Goal updated",
+    ARCHIVED: "Goal archived",
+    DELETED: "Goal deleted",
+    ROADMAP_GENERATED: "AI roadmap ready — review and start",
+    PHASE_SAVED: "Phase saved",
+    PHASE_DELETE_BLOCKED:
+      "Finish or clear completed tasks before deleting this phase",
+    TASK_SAVED: "Task saved",
+    TASK_DELETE_BLOCKED:
+      "Completed tasks can't be deleted — they're part of your history",
+    TASK_DONE: "Nice — task done",
+    DAY_COMPLETE: "That's the whole day done",
+    TICK_LOCKED: "This day is already finalized",
+    GENERATE_LOCKED:
+      "This goal already has progress — regenerating would erase history",
   },
 } as const;

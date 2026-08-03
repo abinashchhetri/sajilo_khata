@@ -25,6 +25,7 @@ import MusicSearchBar from "@/components/music/MusicSearchBar";
 import PlaylistCard from "@/components/music/PlaylistCard";
 import TrackCard from "@/components/music/TrackCard";
 import PlaylistForm from "@/components/playlists/PlaylistForm";
+import ImportPlaylistButton from "@/components/playlists/import/ImportPlaylistButton";
 
 import { useGetPlaylists } from "@/hooks/react-query/playlists/get-playlists.hook";
 import { useGetMusicHistory } from "@/hooks/react-query/music/get-music-history.hook";
@@ -118,6 +119,9 @@ const MusicPage = () => {
               New Playlist
             </Button>
           </div>
+
+          {/* Playlist import — button plus a live strip while one is running */}
+          <ImportPlaylistButton darkSurface />
 
           {playlistsLoading ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
