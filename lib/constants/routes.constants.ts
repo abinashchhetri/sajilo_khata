@@ -28,6 +28,7 @@ export const ROUTES = {
     AI_PLAN: "/health/ai-plan",
   },
   MEALS: "/meals",
+  RESOURCES: "/resources",
   GOALS: "/goals",
   GOAL_DETAIL: (id: string) => `/goals/${id}`,
 } as const;

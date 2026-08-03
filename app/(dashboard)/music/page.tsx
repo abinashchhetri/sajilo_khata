@@ -26,6 +26,7 @@ import PlaylistCard from "@/components/music/PlaylistCard";
 import TrackCard from "@/components/music/TrackCard";
 import PlaylistForm from "@/components/playlists/PlaylistForm";
 import ImportPlaylistButton from "@/components/playlists/import/ImportPlaylistButton";
+import OfflinePlayerCard from "@/components/resources/OfflinePlayerCard";
 
 import { useGetPlaylists } from "@/hooks/react-query/playlists/get-playlists.hook";
 import { useGetMusicHistory } from "@/hooks/react-query/music/get-music-history.hook";
@@ -122,6 +123,9 @@ const MusicPage = () => {
 
           {/* Playlist import — button plus a live strip while one is running */}
           <ImportPlaylistButton darkSurface />
+
+          {/* Quick link to the offline player — lives in full on /resources */}
+          <OfflinePlayerCard compact darkSurface />
 
           {playlistsLoading ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
