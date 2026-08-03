@@ -62,6 +62,10 @@ export interface IQueueStateResponse {
 // or discovery play that drifts into recommendations.
 export interface IPlayTrackBody {
   playlistId?: string;
+  /** Only ever sent on a deliberate shuffle-play. Sending it on a rollover
+   *  would make the backend reshuffle mid-playlist — rollovers must go
+   *  through /music/queue/advance instead. */
+  shuffle?: boolean;
 }
 
 export interface IPlayTrackResponse {

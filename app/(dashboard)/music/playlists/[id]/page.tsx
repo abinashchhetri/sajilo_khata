@@ -18,6 +18,7 @@ import {
   Music,
   Play,
   Plus,
+  Shuffle,
   Trash2,
   X,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import TrackCard from "@/components/music/TrackCard";
 import DownloadPlaylistButton from "@/components/playlists/download/DownloadPlaylistButton";
+import SharePlaylistButton from "@/components/playlists/share/SharePlaylistButton";
 import MusicSearchBar from "@/components/music/MusicSearchBar";
 
 import { useGetPlaylist } from "@/hooks/react-query/playlists/get-playlist.hook";
@@ -172,6 +174,14 @@ const PlaylistDetailPage = () => {
     playTrack(localTracks[0], id);
   };
 
+  // A deliberate press — shuffle:true tells the backend to build a brand new
+  // random order. Track rollovers must never send this; they go through
+  // queue/advance, which is how the backend tells the two apart.
+  const handleShufflePlay = () => {
+    if (!localTracks.length) return;
+    playTrack(localTracks[0], id, true);
+  };
+
   const handleSelectTrack = async (track: IDiscoveryTrack) => {
     // Discovery tracks with no DB id haven't been played yet — they must be
     // played first (which downloads + caches them) before they can be added.
@@ -275,6 +285,15 @@ const PlaylistDetailPage = () => {
               <Button
                 size="sm"
                 variant="outline"
+                onClick={handleShufflePlay}
+                disabled={localTracks.length === 0}
+              >
+                <Shuffle size={14} />
+                Shuffle
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
                 onClick={() => setIsAddTracksOpen(true)}
               >
                 <Plus size={14} />
@@ -283,6 +302,10 @@ const PlaylistDetailPage = () => {
               <DownloadPlaylistButton
                 playlistId={id}
                 disabled={localTracks.length === 0}
+              />
+              <SharePlaylistButton
+                playlistId={id}
+                playlistName={playlist.name}
               />
               <Button
                 size="sm"

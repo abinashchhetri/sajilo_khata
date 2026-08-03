@@ -61,9 +61,22 @@ export interface IMusicPlayerContext {
   volume: number;
   currentTime: number;
   duration: number;
+  /** The playlist the current track is playing from, or null for discovery
+   *  and history plays. Shuffle only applies inside a playlist, so controls
+   *  gate on this. */
+  currentPlaylistId: string | null;
+  isShuffled: boolean;
+  /** Reconcile from the server's authoritative response, never optimistically
+   *  on its own. */
+  setIsShuffled: (on: boolean) => void;
   /** Pass playlistId when playing from a playlist so the backend queues the
-   *  rest of it. Omit for normal/discovery plays. */
-  playTrack: (track: ITrack, playlistId?: string) => Promise<void>;
+   *  rest of it. Omit for normal/discovery plays. `shuffle` is only for a
+   *  deliberate shuffle-play — never for a track rolling over. */
+  playTrack: (
+    track: ITrack,
+    playlistId?: string,
+    shuffle?: boolean,
+  ) => Promise<void>;
   playDiscoveryTrack: (track: IDiscoveryTrack) => Promise<void>;
   pauseTrack: () => void;
   resumeTrack: () => void;
@@ -90,6 +103,10 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [volume, setVolumeState] = useState(0.8);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentPlaylistId, setCurrentPlaylistId] = useState<string | null>(
+    null,
+  );
+  const [isShuffled, setIsShuffled] = useState(false);
 
   // Ref guard prevents concurrent advance calls (track-end race with manual skip)
   const isAdvancingRef = useRef(false);
@@ -105,21 +122,29 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
 
   // playlistId is optional and simply forwarded — when present the backend
   // queues the rest of that playlist behind this track instead of drifting
-  // into recommendations.
-  const playTrack = useCallback(async (track: ITrack, playlistId?: string) => {
-    setIsLoading(true);
-    try {
-      const result = await playTrackService(track.id, playlistId);
-      const url = result.data.streamUrl ?? buildStreamUrl(result.data.track.id);
-      setCurrentTrack(result.data.track);
-      setStreamUrl(url);
-      setIsPlaying(true);
-    } catch {
-      toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  // into recommendations. `shuffle` is only ever true on a deliberate
+  // shuffle-play; a track ending goes through advanceToNext instead.
+  const playTrack = useCallback(
+    async (track: ITrack, playlistId?: string, shuffle?: boolean) => {
+      setIsLoading(true);
+      try {
+        const result = await playTrackService(track.id, playlistId, shuffle);
+        const url =
+          result.data.streamUrl ?? buildStreamUrl(result.data.track.id);
+        setCurrentTrack(result.data.track);
+        setStreamUrl(url);
+        setIsPlaying(true);
+        // Remember the context so shuffle controls know whether they apply.
+        setCurrentPlaylistId(playlistId ?? null);
+        if (shuffle !== undefined) setIsShuffled(!!shuffle);
+      } catch {
+        toast.error(TOAST_MESSAGES.MUSIC.PLAY_ERROR);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   const playDiscoveryTrack = useCallback(
     async (track: IDiscoveryTrack) => {
@@ -138,6 +163,9 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
         setCurrentTrack(result.track);
         setStreamUrl(url);
         setIsPlaying(true);
+        // Discovery playback has no playlist context — shuffle no longer applies.
+        setCurrentPlaylistId(null);
+        setIsShuffled(false);
         toast.success("Now playing!", { id: toastId, duration: 2000 });
         // Refresh Recently Played so the new track appears without a page reload
         queryClient.invalidateQueries({
@@ -196,6 +224,9 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
         volume,
         currentTime,
         duration,
+        currentPlaylistId,
+        isShuffled,
+        setIsShuffled,
         playTrack,
         playDiscoveryTrack,
         pauseTrack,

@@ -72,6 +72,11 @@ export const QUERY_KEYS = {
     SINGLE: (id: string) => ["playlist", id] as const,
   },
 
+  PLAYLIST_SHARE: {
+    LINK: (playlistId: string) => ["playlist-share-link", playlistId] as const,
+    SHARED: (token: string) => ["shared-playlist", token] as const,
+  },
+
   PLAYLIST_DOWNLOAD: {
     MANIFEST: (playlistId: string) =>
       ["playlist-download-manifest", playlistId] as const,
