@@ -61,7 +61,9 @@ export interface IMusicPlayerContext {
   volume: number;
   currentTime: number;
   duration: number;
-  playTrack: (track: ITrack) => Promise<void>;
+  /** Pass playlistId when playing from a playlist so the backend queues the
+   *  rest of it. Omit for normal/discovery plays. */
+  playTrack: (track: ITrack, playlistId?: string) => Promise<void>;
   playDiscoveryTrack: (track: IDiscoveryTrack) => Promise<void>;
   pauseTrack: () => void;
   resumeTrack: () => void;
@@ -101,10 +103,13 @@ const MusicPlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const playTrack = useCallback(async (track: ITrack) => {
+  // playlistId is optional and simply forwarded — when present the backend
+  // queues the rest of that playlist behind this track instead of drifting
+  // into recommendations.
+  const playTrack = useCallback(async (track: ITrack, playlistId?: string) => {
     setIsLoading(true);
     try {
-      const result = await playTrackService(track.id);
+      const result = await playTrackService(track.id, playlistId);
       const url = result.data.streamUrl ?? buildStreamUrl(result.data.track.id);
       setCurrentTrack(result.data.track);
       setStreamUrl(url);
