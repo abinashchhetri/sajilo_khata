@@ -31,11 +31,18 @@ import type {
 export const playTrack = async (
   trackId: string,
   playlistId?: string,
+  shuffle?: boolean,
 ): Promise<TApiResponse<IPlayTrackResponse>> => {
-  const body: IPlayTrackBody | undefined = playlistId
-    ? { playlistId }
-    : undefined;
-  const { data } = await apiClient.post(`/music/play/${trackId}`, body);
+  const body: IPlayTrackBody = {};
+  if (playlistId) body.playlistId = playlistId;
+  // Only on a deliberate shuffle-play. The backend treats a play/:trackId
+  // call as a user press and reshuffles — rollovers use queue/advance.
+  if (shuffle) body.shuffle = true;
+
+  const { data } = await apiClient.post(
+    `/music/play/${trackId}`,
+    Object.keys(body).length > 0 ? body : undefined,
+  );
   return data;
 };
 

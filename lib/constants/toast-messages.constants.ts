@@ -83,6 +83,22 @@ export const TOAST_MESSAGES = {
     MUST_BE_CACHED: "Track must finish loading before adding to a playlist",
   },
 
+  SHARE: {
+    LINK_COPIED: "Share link copied",
+    REVOKED: "Sharing stopped — that link no longer works",
+    SAVED: "Saved to your library",
+    TRUNCATED: "Saved, but only the first 500 tracks could be copied",
+    INVALID_LINK: "This link is invalid or has been revoked",
+    ALREADY_YOURS: "This playlist is already yours",
+  },
+
+  SHUFFLE: {
+    ON: "Shuffle on",
+    OFF: "Shuffle off",
+    NOT_IN_PLAYLIST:
+      "Shuffle only applies while playing from a playlist. Start a playlist first.",
+  },
+
   DOWNLOAD: {
     STARTED: "Preparing your download…",
     COMPLETED: "Download saved",

@@ -29,6 +29,9 @@ export const ROUTES = {
   },
   MEALS: "/meals",
   RESOURCES: "/resources",
+  // Public — the backend builds share URLs pointing here. Anyone with the
+  // link must be able to open it signed out, so it lives outside (dashboard).
+  SHARED_PLAYLIST: (token: string) => `/shared/${token}`,
   GOALS: "/goals",
   GOAL_DETAIL: (id: string) => `/goals/${id}`,
 } as const;

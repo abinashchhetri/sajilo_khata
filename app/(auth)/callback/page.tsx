@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 import { ROUTES } from "@/lib/constants/routes.constants";
+import { getPendingShareToken } from "@/lib/pending-share";
 import {
   ACCESS_TOKEN_KEY,
   REFRESH_TOKEN_KEY,
@@ -35,9 +36,17 @@ const CallbackPage = () => {
     if (at) {
       localStorage.setItem(ACCESS_TOKEN_KEY, at);
       if (rt) localStorage.setItem(REFRESH_TOKEN_KEY, rt);
+
+      // Someone who signed in specifically to save a shared playlist goes
+      // back to it, not to the dashboard. The token was stashed before the
+      // OAuth round trip because nothing else survives leaving our origin.
+      const pendingShare = getPendingShareToken();
+
       // Hard navigate so the new localStorage token is picked up by the
-      // Axios interceptor on the very first request in the dashboard.
-      window.location.href = ROUTES.DASHBOARD;
+      // Axios interceptor on the very first request afterwards.
+      window.location.href = pendingShare
+        ? ROUTES.SHARED_PLAYLIST(pendingShare)
+        : ROUTES.DASHBOARD;
     } else {
       // No token in hash — something went wrong. Fall back to login.
       window.location.href = ROUTES.LOGIN;

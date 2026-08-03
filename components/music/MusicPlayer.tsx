@@ -30,6 +30,7 @@ import {
 import { useMusicPlayer } from "@/hooks/context/use-music-player.hook";
 import { peekQueue } from "@/services/music/music.service";
 import UpcomingQueue from "@/components/music/UpcomingQueue";
+import ShuffleButton from "@/components/music/ShuffleButton";
 import { formatDuration, truncate } from "@/utils/format.utils";
 import { TOAST_MESSAGES } from "@/lib/constants/toast-messages.constants";
 
@@ -166,6 +167,9 @@ const MusicPlayer = () => {
       {/* ── Center: controls + progress ───────────────────────────────────── */}
       <div className="flex w-1/3 flex-col items-center gap-2">
         <div className="flex items-center gap-5">
+          {/* Shuffle — self-disabling unless playing from a playlist */}
+          <ShuffleButton size={16} darkContext />
+
           <button
             disabled
             className="text-zinc-600 transition-colors"
