@@ -72,6 +72,11 @@ export const QUERY_KEYS = {
     SINGLE: (id: string) => ["playlist", id] as const,
   },
 
+  PLAYLIST_DOWNLOAD: {
+    MANIFEST: (playlistId: string) =>
+      ["playlist-download-manifest", playlistId] as const,
+  },
+
   PLAYLIST_IMPORT: {
     PREVIEW: (url: string) => ["playlist-import-preview", url] as const,
     PROGRESS: (importId: string) =>

@@ -14,6 +14,7 @@
 import Image from "next/image";
 import { BarChart2, HardDrive, Music, Plus } from "lucide-react";
 
+import DownloadTrackButton from "@/components/playlists/download/DownloadTrackButton";
 import { useMusicPlayer } from "@/hooks/context/use-music-player.hook";
 import { formatDuration, truncate } from "@/utils/format.utils";
 import type { ITrack } from "@/types/music/music.types";
@@ -30,6 +31,10 @@ interface Props {
    *  rest of that playlist behind this track. Leave undefined in history and
    *  recently-played lists, where playback should stay unscoped. */
   playlistId?: string;
+  /** Show the per-track offline download action. Opt-in, so existing lists
+   *  render exactly as before. Only has an effect on cached tracks — an
+   *  uncached one has no audio on the server to hand out. */
+  showDownload?: boolean;
 }
 
 // ─────── Equalizer bars — rendered when the track is actively playing ─────────
@@ -51,6 +56,7 @@ const TrackCard = ({
   compact = false,
   darkContext = false,
   playlistId,
+  showDownload = false,
 }: Props) => {
   const { currentTrack, playTrack } = useMusicPlayer();
 
@@ -168,6 +174,12 @@ const TrackCard = ({
         >
           <Plus size={15} />
         </button>
+      )}
+
+      {/* Offline download — cached tracks only, since an uncached track has
+          no audio on the server to hand out a link for. */}
+      {showDownload && track.isCached && (
+        <DownloadTrackButton trackId={track.id} darkContext={darkContext} />
       )}
     </div>
   );

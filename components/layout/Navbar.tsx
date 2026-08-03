@@ -18,6 +18,7 @@ import {
   Dumbbell,
   UtensilsCrossed,
   Heart,
+  LibraryBig,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -221,6 +222,21 @@ const Navbar = () => {
           >
             <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
             Dashboard
+          </Link>
+
+          {/* Resources — standalone, like Dashboard: it belongs to no section */}
+          <Link
+            href={ROUTES.RESOURCES}
+            onClick={closeDrawer}
+            className={cn(
+              "flex items-center gap-2.5 rounded-sm px-3 py-1.5 text-[13px] transition-colors",
+              isActive(ROUTES.RESOURCES)
+                ? "bg-sidebar-accent font-medium text-primary"
+                : "font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+            )}
+          >
+            <LibraryBig className="h-3.5 w-3.5 shrink-0" />
+            Resources
           </Link>
 
           <div className="my-1 h-px bg-border" />

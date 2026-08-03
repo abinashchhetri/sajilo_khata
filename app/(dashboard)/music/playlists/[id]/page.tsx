@@ -33,6 +33,7 @@ import {
 import EmptyState from "@/components/shared/EmptyState";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import TrackCard from "@/components/music/TrackCard";
+import DownloadPlaylistButton from "@/components/playlists/download/DownloadPlaylistButton";
 import MusicSearchBar from "@/components/music/MusicSearchBar";
 
 import { useGetPlaylist } from "@/hooks/react-query/playlists/get-playlist.hook";
@@ -279,6 +280,10 @@ const PlaylistDetailPage = () => {
                 <Plus size={14} />
                 Add Tracks
               </Button>
+              <DownloadPlaylistButton
+                playlistId={id}
+                disabled={localTracks.length === 0}
+              />
               <Button
                 size="sm"
                 variant="destructive"
@@ -324,7 +329,7 @@ const PlaylistDetailPage = () => {
 
               {/* Track card — playlistId scopes playback to this playlist */}
               <div className="min-w-0 flex-1">
-                <TrackCard track={track} compact playlistId={id} />
+                <TrackCard track={track} compact playlistId={id} showDownload />
               </div>
 
               {/* Drag handle */}

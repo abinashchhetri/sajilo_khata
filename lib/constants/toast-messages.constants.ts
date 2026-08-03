@@ -83,6 +83,18 @@ export const TOAST_MESSAGES = {
     MUST_BE_CACHED: "Track must finish loading before adding to a playlist",
   },
 
+  DOWNLOAD: {
+    STARTED: "Preparing your download…",
+    COMPLETED: "Download saved",
+    CANCELLED: "Download cancelled",
+    FAILED: "Download failed. Please try again.",
+    TOO_LARGE:
+      "This playlist is too large for your browser to download. Use Chrome or Edge on desktop for playlists this size.",
+    NOT_READY: "No tracks are ready to download yet.",
+    RATE_LIMITED: "Too many downloads. Try again in a little while.",
+    TRACK_SAVED: "Track download started",
+  },
+
   PLAYLIST_IMPORT: {
     STARTED: "Import started — tracks will download in the background",
     CANCELLED: "Import cancelled",

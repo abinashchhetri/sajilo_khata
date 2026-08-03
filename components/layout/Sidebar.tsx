@@ -16,6 +16,7 @@ import {
   Dumbbell,
   UtensilsCrossed,
   Heart,
+  LibraryBig,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -184,6 +185,14 @@ const Sidebar = () => {
         <div className="my-1 h-px bg-border" />
 
         {/* Accordion sections */}
+        {/* Resources — standalone, like Dashboard: it belongs to no section */}
+        <NavLink
+          href={ROUTES.RESOURCES}
+          icon={LibraryBig}
+          label="Resources"
+          isActive={isActive(ROUTES.RESOURCES)}
+        />
+
         <Accordion
           type="multiple"
           value={openSections}
